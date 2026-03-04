@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
 import { SEBIDisclaimer } from '@/components/ui/SEBIDisclaimer';
-import { BookOpen, Search } from 'lucide-react';
+import { BookOpen, Search, Download, FileSpreadsheet } from 'lucide-react';
+import { generateTradeExcel, generateTradeCSV } from '@/lib/tradeExport';
 import Link from 'next/link';
 import type { Trade } from '@/types';
 
@@ -13,6 +14,7 @@ export function TradesList() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
   const [journalStatus, setJournalStatus] = useState<Record<string, boolean>>({});
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     async function fetchTrades() {
@@ -75,18 +77,65 @@ export function TradesList() {
     );
   }
 
+  const handleExportExcel = async () => {
+    setExporting(true);
+    try {
+      const buffer = await generateTradeExcel(trades);
+      const blob = new Blob([buffer.buffer as ArrayBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bazaarsaar-trades-${new Date().toISOString().split('T')[0]}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExportCSV = () => {
+    const csv = generateTradeCSV(trades);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bazaarsaar-trades-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4a4a6a]" />
-        <input
-          type="text"
-          placeholder="Filter by symbol..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-green-500/30"
-        />
+      {/* Toolbar */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4a4a6a]" />
+          <input
+            type="text"
+            placeholder="Filter by symbol..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-green-500/30"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleExportExcel}
+          disabled={exporting}
+          className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-xs text-[#d4d4e8] bg-white/[0.06] border border-white/[0.08] cursor-pointer hover:bg-white/[0.1] transition-colors disabled:opacity-50 whitespace-nowrap"
+        >
+          <FileSpreadsheet size={14} />
+          {exporting ? 'Exporting...' : 'Excel'}
+        </button>
+        <button
+          type="button"
+          onClick={handleExportCSV}
+          className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-xs text-[#d4d4e8] bg-white/[0.06] border border-white/[0.08] cursor-pointer hover:bg-white/[0.1] transition-colors whitespace-nowrap"
+        >
+          <Download size={14} />
+          CSV
+        </button>
       </div>
 
       {/* Table */}
