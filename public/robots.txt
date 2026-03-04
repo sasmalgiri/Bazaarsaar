@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /dashboard/
+Sitemap: https://bazaarsaar.com/sitemap.xml
+Crawl-delay: 1

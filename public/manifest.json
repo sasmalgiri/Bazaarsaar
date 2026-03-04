@@ -1,0 +1,17 @@
+{
+  "name": "BazaarSaar - Indian Market Intelligence",
+  "short_name": "BazaarSaar",
+  "description": "Daily intelligence, explainable signals, and portfolio analytics for Indian market participants.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#22c55e",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["finance", "business"]
+}
