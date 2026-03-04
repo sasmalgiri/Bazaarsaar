@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 function ZerodhaCallbackInner() {
@@ -22,19 +21,9 @@ function ZerodhaCallbackInner() {
 
     async function exchangeToken() {
       try {
-        const supabase = createClient();
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          setError('Please sign in first');
-          return;
-        }
-
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/zerodha_exchange_token`, {
+        const res = await fetch('/api/broker/exchange-token', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ request_token: requestToken, state }),
         });
 

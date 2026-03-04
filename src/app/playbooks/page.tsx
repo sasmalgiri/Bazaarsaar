@@ -32,22 +32,16 @@ export default function PlaybooksPage() {
   const handleClone = async (templateId: string) => {
     setCloning(templateId);
     try {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      const res = await globalThis.fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/clone_playbook_template`, {
+      const res = await fetch('/api/playbooks/clone', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ template_id: templateId }),
       });
 
       const data = await res.json();
       if (data.ok && data.playbook_id) {
         // Refresh playbooks
+        const supabase = createClient();
         const { data: updated } = await supabase.from('user_playbook').select('*').order('created_at', { ascending: false });
         setMyPlaybooks((updated as unknown as UserPlaybook[]) || []);
       }

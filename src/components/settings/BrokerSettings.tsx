@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Link2, RefreshCw, Upload, AlertTriangle } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import { CSVImportModal } from './CSVImportModal';
 
 export function BrokerSettings() {
@@ -16,19 +15,7 @@ export function BrokerSettings() {
     setConnecting(true);
     setMessage(null);
     try {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setMessage({ type: 'error', text: 'Please sign in first' });
-        return;
-      }
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/zerodha_auth_url`, {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const res = await fetch('/api/broker/auth-url');
       const data = await res.json();
 
       if (data.url) {
@@ -47,20 +34,7 @@ export function BrokerSettings() {
     setSyncing(true);
     setMessage(null);
     try {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setMessage({ type: 'error', text: 'Please sign in first' });
-        return;
-      }
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/zerodha_sync`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const res = await fetch('/api/broker/sync', { method: 'POST' });
       const data = await res.json();
 
       if (data.success) {

@@ -3,7 +3,6 @@
 import { useState, useRef } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Upload, X, FileText } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
 interface CSVImportModalProps {
   onClose: () => void;
@@ -22,21 +21,11 @@ export function CSVImportModal({ onClose }: CSVImportModalProps) {
     setError(null);
 
     try {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setError('Please sign in first');
-        return;
-      }
-
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/import_trades_csv`, {
+      const res = await fetch('/api/import/csv', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
         body: formData,
       });
 

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { createClient } from '@/lib/supabase/client';
 import { Compass } from 'lucide-react';
 import type { MarketType, TradingStyle, RiskLevel } from '@/types';
 
@@ -37,20 +36,9 @@ export default function GuidedSetupPage() {
     setError(null);
 
     try {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setError('Please sign in first');
-        setBusy(false);
-        return;
-      }
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/apply_guided_setup`, {
+      const res = await fetch('/api/guided-setup', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ market, style, risk }),
       });
 

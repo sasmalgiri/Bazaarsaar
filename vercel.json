@@ -1,6 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["bom1"],
   "redirects": [
     { "source": "/refund-policy", "destination": "/refund", "permanent": true }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/weekly-report",
+      "schedule": "0 18 * * 5"
+    },
+    {
+      "path": "/api/cron/broker-health",
+      "schedule": "30 0 * * *"
+    }
   ]
 }
