@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
 import { SEBIDisclaimer } from '@/components/ui/SEBIDisclaimer';
-import { Upload, Play, Save, FlaskConical, Trash2, Search, BarChart3 } from 'lucide-react';
+import { Upload, Play, Save, FlaskConical, Trash2, Search, BarChart3, FolderOpen, Pencil, Clock } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
@@ -140,6 +140,14 @@ const PERIOD_OPTIONS = [
   { value: '5y', label: '5Y' },
 ];
 
+interface SavedExperiment {
+  id: string;
+  title: string;
+  inputs: { source: string; rows: DataRow[] };
+  params: { recipes: string[] };
+  created_at: string;
+}
+
 export function DataLabUI() {
   const [rawData, setRawData] = useState<DataRow[]>([]);
   const [activeRecipes, setActiveRecipes] = useState<string[]>([]);
@@ -153,6 +161,12 @@ export function DataLabUI() {
   const [stockPeriod, setStockPeriod] = useState('1y');
   const [stockLoading, setStockLoading] = useState(false);
   const [stockError, setStockError] = useState('');
+
+  // Saved experiments state
+  const [experiments, setExperiments] = useState<SavedExperiment[]>([]);
+  const [experimentsLoading, setExperimentsLoading] = useState(false);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
 
   // Trades state
   const [tradesLoading, setTradesLoading] = useState(false);
@@ -320,8 +334,28 @@ export function DataLabUI() {
     );
   };
 
+  /* ── Saved Experiments CRUD ── */
+  const fetchExperiments = useCallback(async () => {
+    setExperimentsLoading(true);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setExperimentsLoading(false); return; }
+
+    const { data } = await supabase
+      .from('datalab_experiment')
+      .select('id, title, inputs, params, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    setExperiments((data as SavedExperiment[]) || []);
+    setExperimentsLoading(false);
+  }, []);
+
+  useEffect(() => { fetchExperiments(); }, [fetchExperiments]);
+
   const handleSaveExperiment = async () => {
-    if (processedData.length === 0) return;
+    if (rawData.length === 0) return;
     setSaving(true);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -330,15 +364,37 @@ export function DataLabUI() {
     await supabase.from('datalab_experiment').insert({
       user_id: user.id,
       title: sourceLabel || 'Untitled',
-      source_file: sourceLabel,
-      recipe_ids: activeRecipes,
-      row_count: processedData.length,
-      snapshot: processedData.slice(0, 50),
+      inputs: { source: sourceLabel, rows: rawData.slice(0, 200) },
+      params: { recipes: activeRecipes },
     });
 
     setSaving(false);
     setSavedMsg('Experiment saved!');
     setTimeout(() => setSavedMsg(''), 2000);
+    fetchExperiments();
+  };
+
+  const handleLoadExperiment = (exp: SavedExperiment) => {
+    const rows = exp.inputs?.rows || [];
+    if (rows.length > 0) {
+      setRawData(rows);
+      setSourceLabel(exp.title);
+      setActiveRecipes(exp.params?.recipes || []);
+    }
+  };
+
+  const handleRenameExperiment = async (id: string) => {
+    if (!renameValue.trim()) { setRenamingId(null); return; }
+    const supabase = createClient();
+    await supabase.from('datalab_experiment').update({ title: renameValue.trim() }).eq('id', id);
+    setRenamingId(null);
+    fetchExperiments();
+  };
+
+  const handleDeleteExperiment = async (id: string) => {
+    const supabase = createClient();
+    await supabase.from('datalab_experiment').delete().eq('id', id);
+    setExperiments((prev) => prev.filter((e) => e.id !== id));
   };
 
   const tabs: { id: DataSource; label: string; icon: typeof Search }[] = [
@@ -580,6 +636,95 @@ export function DataLabUI() {
           </div>
         </GlassCard>
       )}
+
+      {/* Saved Experiments */}
+      <GlassCard className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <FolderOpen size={18} className="text-blue-500" />
+          <h2 className="text-lg font-semibold text-[#d4d4e8]">Saved Experiments</h2>
+          <span className="text-xs text-[#4a4a6a] ml-auto">{experiments.length} saved</span>
+        </div>
+
+        {experimentsLoading ? (
+          <p className="text-sm text-[#6b6b8a] text-center py-6">Loading experiments...</p>
+        ) : experiments.length === 0 ? (
+          <p className="text-sm text-[#6b6b8a] text-center py-6">
+            No saved experiments yet. Load data, apply recipes, and save to build your library.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {experiments.map((exp) => (
+              <div
+                key={exp.id}
+                className="flex items-center gap-3 p-3 rounded-lg bg-[#11111a] border border-white/[0.06] hover:border-white/[0.1] transition-colors group"
+              >
+                {renamingId === exp.id ? (
+                  <input
+                    type="text"
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleRenameExperiment(exp.id);
+                      if (e.key === 'Escape') setRenamingId(null);
+                    }}
+                    onBlur={() => handleRenameExperiment(exp.id)}
+                    autoFocus
+                    aria-label="Rename experiment"
+                    className="flex-1 px-2 py-1 rounded bg-[#1a1a24] border border-green-500/30 text-sm text-[#d4d4e8] outline-none"
+                  />
+                ) : (
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-[#d4d4e8] truncate">{exp.title}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <Clock size={10} className="text-[#4a4a6a]" />
+                      <span className="text-[10px] text-[#4a4a6a]">
+                        {new Date(exp.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
+                      </span>
+                      {exp.params?.recipes?.length > 0 && (
+                        <span className="text-[10px] text-[#4a4a6a]">
+                          {exp.params.recipes.length} recipe{exp.params.recipes.length > 1 ? 's' : ''}
+                        </span>
+                      )}
+                      {exp.inputs?.rows && (
+                        <span className="text-[10px] text-[#4a4a6a]">
+                          {exp.inputs.rows.length} rows
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    type="button"
+                    onClick={() => handleLoadExperiment(exp)}
+                    className="px-2.5 py-1 rounded text-[11px] text-green-500 bg-green-500/10 border border-green-500/20 cursor-pointer hover:bg-green-500/20 transition-colors"
+                    title="Load experiment"
+                  >
+                    Load
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setRenamingId(exp.id); setRenameValue(exp.title); }}
+                    className="p-1.5 rounded text-[#6b6b8a] bg-transparent border-none cursor-pointer hover:text-[#b0b0c8] hover:bg-white/[0.06] transition-colors"
+                    title="Rename"
+                  >
+                    <Pencil size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteExperiment(exp.id)}
+                    className="p-1.5 rounded text-red-500/60 bg-transparent border-none cursor-pointer hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </GlassCard>
 
       <SEBIDisclaimer type="journal" />
     </div>

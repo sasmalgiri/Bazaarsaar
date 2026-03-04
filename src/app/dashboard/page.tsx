@@ -12,7 +12,8 @@ import { RecentTradesTable } from '@/components/dashboard/RecentTradesTable';
 import { PnlBySymbol } from '@/components/dashboard/PnlBySymbol';
 import { PnlCalendarHeatmap } from '@/components/dashboard/PnlCalendarHeatmap';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { Link2 } from 'lucide-react';
+import { useDashboardStore } from '@/lib/store/dashboardStore';
+import { Link2, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 
 interface Trade {
@@ -36,9 +37,13 @@ interface BrokerConnection {
 export default function DashboardPage() {
   const router = useRouter();
   const { persona, onboardingCompleted } = usePersonaStore();
+  const { widgets, toggleWidget, resetWidgets } = useDashboardStore();
   const [trades, setTrades] = useState<Trade[]>([]);
   const [broker, setBroker] = useState<BrokerConnection | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showCustomize, setShowCustomize] = useState(false);
+
+  const isEnabled = (id: string) => widgets.find((w) => w.id === id)?.enabled !== false;
 
   useEffect(() => {
     if (!onboardingCompleted || !persona) {
@@ -119,79 +124,137 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto animate-fade-in">
-      <PersonaHeader />
+      <div className="flex items-center justify-between mb-1">
+        <PersonaHeader />
+        <button
+          type="button"
+          onClick={() => setShowCustomize((v) => !v)}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border cursor-pointer transition-all ${
+            showCustomize
+              ? 'text-green-500 border-green-500/30 bg-green-500/10'
+              : 'text-[#6b6b8a] border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08]'
+          }`}
+        >
+          <SlidersHorizontal size={14} />
+          Customize
+        </button>
+      </div>
+
+      {/* Customize Panel */}
+      {showCustomize && (
+        <GlassCard className="p-4 mb-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold text-[#d4d4e8] uppercase tracking-wider">Dashboard Widgets</h3>
+            <button
+              type="button"
+              onClick={resetWidgets}
+              className="flex items-center gap-1 text-[11px] text-[#6b6b8a] bg-transparent border-none cursor-pointer hover:text-[#b0b0c8] transition-colors"
+            >
+              <RotateCcw size={11} />
+              Reset
+            </button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+            {widgets.map((w) => (
+              <button
+                key={w.id}
+                type="button"
+                onClick={() => toggleWidget(w.id)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs cursor-pointer transition-all border ${
+                  w.enabled
+                    ? 'text-green-500 border-green-500/20 bg-green-500/10'
+                    : 'text-[#4a4a6a] border-white/[0.06] bg-[#11111a]'
+                }`}
+              >
+                <div className={`w-2 h-2 rounded-full transition-colors ${w.enabled ? 'bg-green-500' : 'bg-[#2a2a3a]'}`} />
+                {w.label}
+              </button>
+            ))}
+          </div>
+        </GlassCard>
+      )}
 
       {/* KPIs — full width */}
-      {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <GlassCard key={i} className="p-4 h-20 animate-pulse"><span /></GlassCard>
-          ))}
-        </div>
-      ) : hasTrades ? (
-        <div className="mb-5">
-          <KPICards {...kpiData} />
-        </div>
-      ) : null}
+      {isEnabled('kpis') && (
+        loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <GlassCard key={i} className="p-4 h-20 animate-pulse"><span /></GlassCard>
+            ))}
+          </div>
+        ) : hasTrades ? (
+          <div className="mb-5">
+            <KPICards {...kpiData} />
+          </div>
+        ) : null
+      )}
 
       {/* Main grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         {/* Broker Status */}
-        <GlassCard className="p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Link2 size={18} className="text-green-500" />
-            <h3 className="text-sm font-semibold text-[#d4d4e8]">Broker Connection</h3>
-          </div>
-          {broker?.status === 'active' ? (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 live-dot" />
-                <span className="text-sm text-green-500 font-medium">Connected — {broker.broker}</span>
+        {isEnabled('broker') && (
+          <GlassCard className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Link2 size={18} className="text-green-500" />
+              <h3 className="text-sm font-semibold text-[#d4d4e8]">Broker Connection</h3>
+            </div>
+            {broker?.status === 'active' ? (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 live-dot" />
+                  <span className="text-sm text-green-500 font-medium">Connected — {broker.broker}</span>
+                </div>
+                {broker.last_synced_at && (
+                  <p className="text-[10px] text-[#4a4a6a]">
+                    Last synced: {new Date(broker.last_synced_at).toLocaleString('en-IN')}
+                  </p>
+                )}
               </div>
-              {broker.last_synced_at && (
-                <p className="text-[10px] text-[#4a4a6a]">
-                  Last synced: {new Date(broker.last_synced_at).toLocaleString('en-IN')}
-                </p>
-              )}
-            </div>
-          ) : broker?.status === 'expired' ? (
-            <div className="py-4 text-center">
-              <p className="text-sm text-amber-500 mb-2">Token expired — reconnect required</p>
-              <Link href="/settings" className="px-4 py-2 rounded-lg text-xs text-green-500 border border-green-500/20 bg-transparent hover:bg-green-500/10 transition-all no-underline">
-                Reconnect Zerodha
-              </Link>
-            </div>
-          ) : (
-            <div className="py-4 text-center">
-              <p className="text-sm text-[#6b6b8a] mb-3">No broker connected yet</p>
-              <Link href="/settings" className="px-4 py-2 rounded-lg text-xs text-green-500 border border-green-500/20 bg-transparent hover:bg-green-500/10 transition-all no-underline">
-                Connect Zerodha
-              </Link>
-            </div>
-          )}
-        </GlassCard>
+            ) : broker?.status === 'expired' ? (
+              <div className="py-4 text-center">
+                <p className="text-sm text-amber-500 mb-2">Token expired — reconnect required</p>
+                <Link href="/settings" className="px-4 py-2 rounded-lg text-xs text-green-500 border border-green-500/20 bg-transparent hover:bg-green-500/10 transition-all no-underline">
+                  Reconnect Zerodha
+                </Link>
+              </div>
+            ) : (
+              <div className="py-4 text-center">
+                <p className="text-sm text-[#6b6b8a] mb-3">No broker connected yet</p>
+                <Link href="/settings" className="px-4 py-2 rounded-lg text-xs text-green-500 border border-green-500/20 bg-transparent hover:bg-green-500/10 transition-all no-underline">
+                  Connect Zerodha
+                </Link>
+              </div>
+            )}
+          </GlassCard>
+        )}
 
-        <WatchlistCard />
+        {isEnabled('watchlist') && <WatchlistCard />}
       </div>
 
       {/* Charts — only show when trades exist */}
       {hasTrades && (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-            <EquityCurve trades={trades} />
-            <PnlBySymbol trades={trades} />
-          </div>
+          {(isEnabled('equity') || isEnabled('pnlSymbol')) && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+              {isEnabled('equity') && <EquityCurve trades={trades} />}
+              {isEnabled('pnlSymbol') && <PnlBySymbol trades={trades} />}
+            </div>
+          )}
 
-          <div className="mb-5">
-            <PnlCalendarHeatmap trades={trades} />
-          </div>
+          {isEnabled('heatmap') && (
+            <div className="mb-5">
+              <PnlCalendarHeatmap trades={trades} />
+            </div>
+          )}
         </>
       )}
 
-      {/* Recent Trades — always show */}
-      <div className="mb-5">
-        <RecentTradesTable trades={[...trades].reverse()} />
-      </div>
+      {/* Recent Trades */}
+      {isEnabled('recentTrades') && (
+        <div className="mb-5">
+          <RecentTradesTable trades={[...trades].reverse()} />
+        </div>
+      )}
     </div>
   );
 }
