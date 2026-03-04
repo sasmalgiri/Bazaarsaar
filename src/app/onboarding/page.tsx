@@ -7,6 +7,7 @@ import { StepIndicator } from '@/components/onboarding/StepIndicator';
 import { PersonaSelector } from '@/components/onboarding/PersonaSelector';
 import { WatchlistBuilder } from '@/components/onboarding/WatchlistBuilder';
 import { PreferencesForm } from '@/components/onboarding/PreferencesForm';
+import { ConsentForm } from '@/components/onboarding/ConsentForm';
 import { OnboardingComplete } from '@/components/onboarding/OnboardingComplete';
 
 export default function OnboardingPage() {
@@ -35,7 +36,8 @@ export default function OnboardingPage() {
         {onboardingStep === 0 && <PersonaSelector />}
         {onboardingStep === 1 && <WatchlistBuilder />}
         {onboardingStep === 2 && <PreferencesForm />}
-        {onboardingStep === 3 && <OnboardingComplete />}
+        {onboardingStep === 3 && <ConsentForm />}
+        {onboardingStep === 4 && <OnboardingComplete />}
       </main>
     </div>
   );

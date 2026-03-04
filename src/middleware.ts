@@ -26,9 +26,12 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
-  const isDashboard = request.nextUrl.pathname.startsWith('/dashboard');
+  const isProtected = request.nextUrl.pathname.startsWith('/dashboard')
+    || request.nextUrl.pathname.startsWith('/trades')
+    || request.nextUrl.pathname.startsWith('/review')
+    || request.nextUrl.pathname.startsWith('/settings');
 
-  if (isDashboard && !user) {
+  if (isProtected && !user) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
@@ -40,5 +43,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth/:path*'],
+  matcher: ['/dashboard/:path*', '/trades/:path*', '/review/:path*', '/settings/:path*', '/auth/:path*'],
 };

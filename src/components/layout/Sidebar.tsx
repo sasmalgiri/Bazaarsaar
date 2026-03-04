@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Eye, Zap, FileText, Scale, Shield, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Eye, ArrowLeftRight, CalendarCheck, Settings, Scale, Shield, BookOpen } from 'lucide-react';
 import { usePersonaStore } from '@/lib/store/personaStore';
 import { PERSONA_CONFIGS } from '@/lib/persona/definitions';
 import { cn } from '@/lib/utils';
@@ -10,8 +10,9 @@ import { cn } from '@/lib/utils';
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/watchlist', label: 'Watchlist', icon: Eye },
-  { href: '/dashboard/signals', label: 'Signals', icon: Zap },
-  { href: '/dashboard/daily-pack', label: 'Daily Pack', icon: FileText },
+  { href: '/trades', label: 'Trades', icon: ArrowLeftRight },
+  { href: '/review/weekly', label: 'Weekly Review', icon: CalendarCheck },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 const LEGAL_ITEMS = [

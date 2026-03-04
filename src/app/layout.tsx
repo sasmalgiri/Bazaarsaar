@@ -15,8 +15,8 @@ export const metadata: Metadata = {
     default: 'BazaarSaar | \u092C\u093E\u091C\u093C\u093E\u0930\u0938\u093E\u0930 - Indian Market Intelligence',
     template: '%s | BazaarSaar',
   },
-  description: 'Daily intelligence, explainable signals, and portfolio analytics for swing traders, long-term investors, and options traders in the Indian stock market.',
-  keywords: ['Indian stock market', 'NSE analytics', 'BSE dashboard', 'Nifty signals', 'options trading India', 'swing trading signals', 'SEBI compliant', 'market intelligence', 'bazaarsaar'],
+  description: 'Trade journal, broker sync, and weekly analytics for swing traders, long-term investors, and options traders in the Indian stock market.',
+  keywords: ['Indian stock market', 'trade journal', 'trading journal India', 'Zerodha sync', 'options trading India', 'SEBI compliant', 'market analytics', 'bazaarsaar'],
   icons: { icon: '/favicon.svg', shortcut: '/favicon.svg', apple: '/favicon.svg' },
   alternates: { canonical: siteUrl },
   openGraph: {
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: 'BazaarSaar',
     title: 'BazaarSaar | \u092C\u093E\u091C\u093C\u093E\u0930\u0938\u093E\u0930 - Indian Market Intelligence',
-    description: 'Daily intelligence, explainable signals, and portfolio analytics for Indian market participants.',
+    description: 'Trade journal, broker sync, and weekly analytics for Indian market participants.',
   },
   twitter: {
     card: 'summary_large_image',

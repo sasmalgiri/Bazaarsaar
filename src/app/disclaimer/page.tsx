@@ -30,7 +30,7 @@ export default function DisclaimerPage() {
 
         <section>
           <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">No Recommendations</h2>
-          <p>BazaarSaar does not provide any buy, sell, or hold recommendations. All signals, analytics, and intelligence packs are generated from publicly available market data and are for informational purposes only.</p>
+          <p>BazaarSaar does not provide any buy, sell, or hold recommendations. All journal analytics and weekly reports are descriptive summaries of your own trading data and are for personal review purposes only.</p>
         </section>
 
         <section>

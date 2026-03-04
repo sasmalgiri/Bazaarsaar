@@ -18,12 +18,13 @@ export const FEATURES = {
   investor: parseBool(process.env.NEXT_PUBLIC_FEATURE_INVESTOR, true),
   optionsTrader: parseBool(process.env.NEXT_PUBLIC_FEATURE_OPTIONS_TRADER, true),
 
-  dailyPack: parseBool(process.env.NEXT_PUBLIC_FEATURE_DAILY_PACK, true),
-  signals: parseBool(process.env.NEXT_PUBLIC_FEATURE_SIGNALS, true),
-  screener: parseBool(process.env.NEXT_PUBLIC_FEATURE_SCREENER, false),
+  journal: parseBool(process.env.NEXT_PUBLIC_FEATURE_JOURNAL, true),
+  brokerConnect: parseBool(process.env.NEXT_PUBLIC_FEATURE_BROKER_CONNECT, true),
+  weeklyReport: parseBool(process.env.NEXT_PUBLIC_FEATURE_WEEKLY_REPORT, true),
+  csvImport: parseBool(process.env.NEXT_PUBLIC_FEATURE_CSV_IMPORT, true),
+  dataExport: parseBool(process.env.NEXT_PUBLIC_FEATURE_DATA_EXPORT, true),
 
   zerodha: parseBool(process.env.NEXT_PUBLIC_FEATURE_ZERODHA, false),
-  portfolioImport: parseBool(process.env.NEXT_PUBLIC_FEATURE_PORTFOLIO_IMPORT, false),
 
   pricing: parseBool(process.env.NEXT_PUBLIC_FEATURE_PRICING, false),
   payments: parseBool(process.env.NEXT_PUBLIC_FEATURE_PAYMENTS, false),

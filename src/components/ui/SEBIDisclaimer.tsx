@@ -1,15 +1,13 @@
 import { SEBI_DISCLAIMERS } from '@/lib/constants';
 
 interface SEBIDisclaimerProps {
-  type?: 'general' | 'signal' | 'dailyPack';
+  type?: 'general' | 'journal';
   variant?: 'inline' | 'banner' | 'footer';
   showHindi?: boolean;
 }
 
 export function SEBIDisclaimer({ type = 'general', variant = 'inline', showHindi = false }: SEBIDisclaimerProps) {
-  const text = type === 'signal' ? SEBI_DISCLAIMERS.signal
-    : type === 'dailyPack' ? SEBI_DISCLAIMERS.dailyPack
-    : SEBI_DISCLAIMERS.general;
+  const text = type === 'journal' ? SEBI_DISCLAIMERS.journal : SEBI_DISCLAIMERS.general;
 
   if (variant === 'footer') {
     return (

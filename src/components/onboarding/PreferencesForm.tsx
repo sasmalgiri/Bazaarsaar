@@ -8,15 +8,8 @@ const LANGUAGES = [
   { id: 'both' as const, label: 'Both / \u0926\u094B\u0928\u094B\u0902', icon: '\uD83C\uDF10' },
 ];
 
-const TIME_OPTIONS = [
-  { value: '07:00', label: '7:00 AM', note: 'Early bird' },
-  { value: '08:00', label: '8:00 AM', note: 'Before market' },
-  { value: '09:00', label: '9:00 AM', note: 'Market open' },
-  { value: '18:00', label: '6:00 PM', note: 'EOD review' },
-];
-
 export function PreferencesForm() {
-  const { language, dailyPackTime, setLanguage, setDailyPackTime, setOnboardingStep } = usePersonaStore();
+  const { language, notifications, setLanguage, setNotifications, setOnboardingStep } = usePersonaStore();
 
   return (
     <div className="w-full max-w-[520px] mx-auto animate-fade-in">
@@ -47,25 +40,23 @@ export function PreferencesForm() {
         </div>
       </div>
 
-      {/* Daily Pack Time */}
+      {/* Notifications */}
       <div className="mb-8">
         <h3 className="text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-4">
-          Daily Pack Delivery
+          Notifications
         </h3>
-        <div className="grid grid-cols-2 gap-3">
-          {TIME_OPTIONS.map((t) => (
-            <button
-              key={t.value}
-              onClick={() => setDailyPackTime(t.value)}
-              className={`p-4 rounded-xl bg-[rgba(17,17,24,0.7)] text-left cursor-pointer outline-none transition-all duration-200 border ${
-                dailyPackTime === t.value ? 'border-white/20' : 'border-white/[0.06]'
-              }`}
-            >
-              <span className="text-base font-mono text-[#d4d4e8] block">{t.label}</span>
-              <span className="text-xs text-[#4a4a6a]">{t.note}</span>
-            </button>
-          ))}
-        </div>
+        <label className="flex items-center gap-3 p-4 rounded-xl bg-[rgba(17,17,24,0.7)] border border-white/[0.06] cursor-pointer">
+          <input
+            type="checkbox"
+            checked={notifications}
+            onChange={(e) => setNotifications(e.currentTarget.checked)}
+            className="accent-green-500 w-4 h-4 cursor-pointer"
+          />
+          <div>
+            <span className="text-sm text-[#d4d4e8] block">Enable notifications</span>
+            <span className="text-xs text-[#4a4a6a]">Get notified when weekly reports are ready</span>
+          </div>
+        </label>
       </div>
 
       {/* Navigation */}
@@ -80,7 +71,7 @@ export function PreferencesForm() {
           onClick={() => setOnboardingStep(3)}
           className="px-6 py-2.5 rounded-xl text-sm font-medium bg-[#ededf5] text-[#0a0a0f] border-none cursor-pointer hover:bg-white transition-all duration-200"
         >
-          Complete Setup &rarr;
+          Next &rarr;
         </button>
       </div>
     </div>

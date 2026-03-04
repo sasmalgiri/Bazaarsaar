@@ -10,25 +10,28 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
+    // Fetch from app_user + user_settings (joined)
+    const { data: appUser } = await supabase
+      .from('app_user')
+      .select('id, email, persona, display_name')
       .eq('id', user.id)
       .single();
 
-    if (error && error.code !== 'PGRST116') {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    const { data: settings } = await supabase
+      .from('user_settings')
+      .select('watchlist, language, notifications, onboarding_completed')
+      .eq('user_id', user.id)
+      .single();
 
-    return NextResponse.json(data || {
+    return NextResponse.json({
       id: user.id,
-      email: user.email,
-      persona: null,
-      watchlist: [],
-      language: 'en',
-      daily_pack_time: '08:00',
-      notifications: true,
-      onboarding_completed: false,
+      email: appUser?.email || user.email,
+      persona: appUser?.persona || null,
+      display_name: appUser?.display_name || null,
+      watchlist: settings?.watchlist || [],
+      language: settings?.language || 'en',
+      notifications: settings?.notifications ?? true,
+      onboarding_completed: settings?.onboarding_completed || false,
     });
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -45,23 +48,46 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const ALLOWED_FIELDS = ['persona', 'watchlist', 'language', 'daily_pack_time', 'notifications', 'onboarding_completed'];
-    const sanitized: Record<string, unknown> = {};
-    for (const key of ALLOWED_FIELDS) {
-      if (key in body) sanitized[key] = body[key];
+
+    // Split fields between app_user and user_settings
+    const USER_FIELDS = ['persona', 'display_name'];
+    const SETTINGS_FIELDS = ['watchlist', 'language', 'notifications', 'onboarding_completed'];
+
+    const userUpdate: Record<string, unknown> = {};
+    const settingsUpdate: Record<string, unknown> = {};
+
+    for (const key of USER_FIELDS) {
+      if (key in body) userUpdate[key] = body[key];
+    }
+    for (const key of SETTINGS_FIELDS) {
+      if (key in body) settingsUpdate[key] = body[key];
     }
 
-    const { error } = await supabase
-      .from('user_profiles')
-      .upsert({
-        id: user.id,
-        email: user.email,
-        ...sanitized,
-        updated_at: new Date().toISOString(),
-      });
+    // Update app_user if needed
+    if (Object.keys(userUpdate).length > 0) {
+      const { error } = await supabase
+        .from('app_user')
+        .update({ ...userUpdate, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+    }
+
+    // Upsert user_settings if needed
+    if (Object.keys(settingsUpdate).length > 0) {
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert({
+          user_id: user.id,
+          ...settingsUpdate,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
     }
 
     return NextResponse.json({ success: true });

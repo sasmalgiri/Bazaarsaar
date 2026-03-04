@@ -1,6 +1,6 @@
 'use client';
 
-const STEPS = ['Lens', 'Watchlist', 'Prefs', 'Done'];
+const STEPS = ['Lens', 'Watchlist', 'Prefs', 'Consent', 'Done'];
 
 interface StepIndicatorProps {
   currentStep: number;

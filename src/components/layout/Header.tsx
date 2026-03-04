@@ -28,19 +28,6 @@ export function Header() {
           <span className="text-xs font-medium text-[#9090aa]">{statusLabel}</span>
         </div>
 
-        {/* Index Placeholders */}
-        <div className="hidden md:flex items-center gap-4 ml-4">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-[#6b6b8a]">NIFTY</span>
-            <span className="text-xs font-mono text-[#d4d4e8]">22,450</span>
-            <span className="text-xs font-mono text-green-500">+0.56%</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-[#6b6b8a]">BANK</span>
-            <span className="text-xs font-mono text-[#d4d4e8]">47,890</span>
-            <span className="text-xs font-mono text-red-500">-0.21%</span>
-          </div>
-        </div>
       </div>
 
       {/* Right Side */}

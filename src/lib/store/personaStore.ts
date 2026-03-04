@@ -8,10 +8,11 @@ interface PersonaState {
   persona: PersonaId | null;
   watchlist: string[];
   language: Language;
-  dailyPackTime: string;
   notifications: boolean;
   onboardingCompleted: boolean;
   onboardingStep: number;
+  dpdpConsentGiven: boolean;
+  consentTimestamp: string | null;
   _hasHydrated: boolean;
 }
 
@@ -23,10 +24,10 @@ interface PersonaActions {
   toggleWatchlistSymbol: (symbol: string) => void;
   addPackToWatchlist: (symbols: string[]) => void;
   setLanguage: (lang: Language) => void;
-  setDailyPackTime: (time: string) => void;
   setNotifications: (enabled: boolean) => void;
   setOnboardingCompleted: (completed: boolean) => void;
   setOnboardingStep: (step: number) => void;
+  setDpdpConsent: (granted: boolean) => void;
   resetOnboarding: () => void;
 }
 
@@ -36,10 +37,11 @@ const initialState: Omit<PersonaState, '_hasHydrated'> = {
   persona: null,
   watchlist: [],
   language: 'en',
-  dailyPackTime: '08:00',
   notifications: true,
   onboardingCompleted: false,
   onboardingStep: 0,
+  dpdpConsentGiven: false,
+  consentTimestamp: null,
 };
 
 export const usePersonaStore = create<PersonaStore>()(
@@ -65,10 +67,13 @@ export const usePersonaStore = create<PersonaStore>()(
         watchlist: [...new Set([...s.watchlist, ...symbols])],
       })),
       setLanguage: (language) => set({ language }),
-      setDailyPackTime: (dailyPackTime) => set({ dailyPackTime }),
       setNotifications: (notifications) => set({ notifications }),
       setOnboardingCompleted: (onboardingCompleted) => set({ onboardingCompleted }),
       setOnboardingStep: (onboardingStep) => set({ onboardingStep }),
+      setDpdpConsent: (granted) => set({
+        dpdpConsentGiven: granted,
+        consentTimestamp: granted ? new Date().toISOString() : null,
+      }),
       resetOnboarding: () => set(initialState),
     }),
     {
@@ -86,10 +91,11 @@ export const usePersonaStore = create<PersonaStore>()(
         persona: state.persona,
         watchlist: state.watchlist,
         language: state.language,
-        dailyPackTime: state.dailyPackTime,
         notifications: state.notifications,
         onboardingCompleted: state.onboardingCompleted,
         onboardingStep: state.onboardingStep,
+        dpdpConsentGiven: state.dpdpConsentGiven,
+        consentTimestamp: state.consentTimestamp,
       }),
       onRehydrateStorage: () => () => {
         usePersonaStore.setState({ _hasHydrated: true });

@@ -28,8 +28,9 @@ export default function PrivacyPage() {
           <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">2. How We Use Your Data</h2>
           <p>Your data is used solely to:</p>
           <ul className="list-disc pl-5 mt-2 space-y-1">
-            <li>Personalize your dashboard and signals based on your persona</li>
-            <li>Generate your Daily Intelligence Pack</li>
+            <li>Personalize your dashboard and journal workflows based on your persona</li>
+            <li>Generate weekly descriptive analytics reports</li>
+            <li>Sync and store your trade data from connected brokers</li>
             <li>Improve the Service</li>
           </ul>
           <p className="mt-2">We do NOT sell, rent, or share your personal data with third parties for marketing purposes.</p>

@@ -26,7 +26,7 @@ export default function TermsPage() {
 
         <section>
           <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">3. Educational Purpose</h2>
-          <p>All signals, analytics, daily packs, and market data provided on BazaarSaar are for informational and educational purposes only. Past performance is not indicative of future results.</p>
+          <p>All journal analytics, weekly reports, and trade data on BazaarSaar are for informational and educational purposes only. Past performance is not indicative of future results.</p>
         </section>
 
         <section>

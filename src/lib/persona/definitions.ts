@@ -64,7 +64,7 @@ export const STARTER_PACKS: Record<PersonaId, StarterPack[]> = {
 };
 
 export const ONBOARDING_FEATURES = [
-  { emoji: '\uD83D\uDCCA', title: 'Daily Intelligence Pack', desc: 'Every morning \u2014 what changed, why it matters, exportable.' },
-  { emoji: '\uD83D\uDD14', title: 'Explainable Signals', desc: 'Why it fired, historical hit rate, and regime context.' },
-  { emoji: '\uD83D\uDCBC', title: 'Portfolio Analytics', desc: 'Unified P&L across brokers. Connect later.' },
+  { emoji: '\uD83D\uDCDD', title: 'Trade Journal', desc: 'Log thesis, emotions, and checklists for every trade.' },
+  { emoji: '\uD83D\uDCCA', title: 'Weekly Review', desc: 'Descriptive analytics — win rate, P&L, patterns.' },
+  { emoji: '\uD83D\uDD17', title: 'Broker Sync', desc: 'Connect Zerodha or import CSV. Auto-sync trades.' },
 ];

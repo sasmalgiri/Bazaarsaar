@@ -95,7 +95,7 @@ export function PersonaSelector() {
       </div>
 
       <p className="text-center text-xs text-[#4a4a6a] mt-8">
-        Your choice shapes what signals, metrics, and workflows surface for you.
+        Your choice shapes what metrics and journal workflows surface for you.
       </p>
     </div>
   );
