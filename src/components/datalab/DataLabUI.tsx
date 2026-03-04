@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
 import { SEBIDisclaimer } from '@/components/ui/SEBIDisclaimer';
-import { Upload, Play, Save, FlaskConical, Trash2 } from 'lucide-react';
+import { Upload, Play, Save, FlaskConical, Trash2, Search, BarChart3 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
@@ -23,6 +23,8 @@ interface DataRow {
   close: number;
   [key: string]: string | number;
 }
+
+type DataSource = 'stock' | 'trades' | 'csv';
 
 function ema(values: number[], period: number): number[] {
   const k = 2 / (period + 1);
@@ -124,15 +126,144 @@ const RECIPES: Recipe[] = [
 
 const LINE_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#a855f7', '#06b6d4'];
 
+const POPULAR_STOCKS = [
+  'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK',
+  'SBIN', 'BHARTIARTL', 'ITC', 'TATAMOTORS', 'LT',
+];
+
+const PERIOD_OPTIONS = [
+  { value: '1m', label: '1M' },
+  { value: '3m', label: '3M' },
+  { value: '6m', label: '6M' },
+  { value: '1y', label: '1Y' },
+  { value: '2y', label: '2Y' },
+  { value: '5y', label: '5Y' },
+];
+
 export function DataLabUI() {
   const [rawData, setRawData] = useState<DataRow[]>([]);
   const [activeRecipes, setActiveRecipes] = useState<string[]>([]);
-  const [fileName, setFileName] = useState('');
+  const [sourceLabel, setSourceLabel] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
+  const [activeTab, setActiveTab] = useState<DataSource>('stock');
 
+  // Stock lookup state
+  const [stockSymbol, setStockSymbol] = useState('');
+  const [stockPeriod, setStockPeriod] = useState('1y');
+  const [stockLoading, setStockLoading] = useState(false);
+  const [stockError, setStockError] = useState('');
+
+  // Trades state
+  const [tradesLoading, setTradesLoading] = useState(false);
+  const [tradesError, setTradesError] = useState('');
+
+  const loadData = useCallback((rows: DataRow[], label: string) => {
+    setRawData(rows);
+    setSourceLabel(label);
+    setActiveRecipes([]);
+    setStockError('');
+    setTradesError('');
+  }, []);
+
+  const clearData = useCallback(() => {
+    setRawData([]);
+    setSourceLabel('');
+    setActiveRecipes([]);
+  }, []);
+
+  /* ── Stock Lookup ── */
+  const handleStockFetch = useCallback(async (symbol?: string) => {
+    const sym = (symbol || stockSymbol).trim().toUpperCase();
+    if (!sym) return;
+    setStockSymbol(sym);
+    setStockLoading(true);
+    setStockError('');
+
+    try {
+      const res = await fetch(
+        `/api/datalab/stock-history?symbol=${encodeURIComponent(sym)}&period=${stockPeriod}&interval=1d`
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStockError(data.error || 'Failed to fetch data');
+        setStockLoading(false);
+        return;
+      }
+
+      const rows: DataRow[] = data.rows.map((r: { date: string; open: number; high: number; low: number; close: number; volume: number }) => ({
+        date: r.date,
+        close: r.close,
+        open: r.open,
+        high: r.high,
+        low: r.low,
+        volume: r.volume,
+      }));
+
+      loadData(rows, `${data.symbol} (${stockPeriod})`);
+    } catch {
+      setStockError('Network error. Please try again.');
+    } finally {
+      setStockLoading(false);
+    }
+  }, [stockSymbol, stockPeriod, loadData]);
+
+  /* ── Your Trades ── */
+  const handleLoadTrades = useCallback(async () => {
+    setTradesLoading(true);
+    setTradesError('');
+
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setTradesError('Please sign in to load trades.');
+        setTradesLoading(false);
+        return;
+      }
+
+      const { data: trades, error } = await supabase
+        .from('trade')
+        .select('traded_at, exit_price, entry_price, net_pnl, pnl, symbol')
+        .eq('user_id', user.id)
+        .order('traded_at', { ascending: true });
+
+      if (error) {
+        setTradesError(error.message);
+        setTradesLoading(false);
+        return;
+      }
+
+      if (!trades || trades.length === 0) {
+        setTradesError('No trades found. Sync your broker or import a CSV first.');
+        setTradesLoading(false);
+        return;
+      }
+
+      // Build cumulative P&L curve
+      let cumPnl = 0;
+      const rows: DataRow[] = trades.map((t: { traded_at?: string; exit_price?: number; entry_price?: number; net_pnl?: number; pnl?: number; symbol?: string }) => {
+        const pnl = t.net_pnl || t.pnl || 0;
+        cumPnl += pnl;
+        return {
+          date: (t.traded_at || '').split('T')[0],
+          close: +cumPnl.toFixed(2),
+          pnl: +pnl.toFixed(2),
+          symbol: t.symbol || '',
+        };
+      });
+
+      loadData(rows, `Your Trades (${trades.length} trades)`);
+    } catch {
+      setTradesError('Failed to load trades.');
+    } finally {
+      setTradesLoading(false);
+    }
+  }, [loadData]);
+
+  /* ── CSV Upload ── */
   const handleFile = useCallback((file: File) => {
-    setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
@@ -154,7 +285,6 @@ export function DataLabUI() {
         const close = parseFloat(cols[closeIdx]);
         if (isNaN(close)) continue;
         const row: DataRow = { date: cols[dateIdx], close };
-        // add any extra numeric columns
         headers.forEach((h, idx) => {
           if (idx === dateIdx || idx === closeIdx) return;
           const val = parseFloat(cols[idx]);
@@ -162,11 +292,10 @@ export function DataLabUI() {
         });
         parsed.push(row);
       }
-      setRawData(parsed);
-      setActiveRecipes([]);
+      loadData(parsed, file.name);
     };
     reader.readAsText(file);
-  }, []);
+  }, [loadData]);
 
   const processedData = useMemo(() => {
     let data = [...rawData];
@@ -180,7 +309,9 @@ export function DataLabUI() {
   const chartKeys = useMemo(() => {
     if (processedData.length === 0) return [];
     const sample = processedData[0];
-    return Object.keys(sample).filter((k) => k !== 'date' && typeof sample[k] === 'number');
+    return Object.keys(sample).filter((k) =>
+      k !== 'date' && k !== 'symbol' && typeof sample[k] === 'number'
+    );
   }, [processedData]);
 
   const toggleRecipe = (id: string) => {
@@ -198,11 +329,11 @@ export function DataLabUI() {
 
     await supabase.from('datalab_experiment').insert({
       user_id: user.id,
-      title: fileName || 'Untitled',
-      source_file: fileName,
+      title: sourceLabel || 'Untitled',
+      source_file: sourceLabel,
       recipe_ids: activeRecipes,
       row_count: processedData.length,
-      snapshot: processedData.slice(0, 50), // store first 50 rows as preview
+      snapshot: processedData.slice(0, 50),
     });
 
     setSaving(false);
@@ -210,42 +341,149 @@ export function DataLabUI() {
     setTimeout(() => setSavedMsg(''), 2000);
   };
 
+  const tabs: { id: DataSource; label: string; icon: typeof Search }[] = [
+    { id: 'stock', label: 'Stock Lookup', icon: Search },
+    { id: 'trades', label: 'Your Trades', icon: BarChart3 },
+    { id: 'csv', label: 'CSV Upload', icon: Upload },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Upload */}
+      {/* Data Source */}
       <GlassCard className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <FlaskConical size={18} className="text-amber-500" />
           <h2 className="text-lg font-semibold text-[#d4d4e8]">Data Source</h2>
         </div>
 
-        <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/[0.08] rounded-xl p-8 cursor-pointer hover:border-green-500/30 transition-colors">
-          <Upload size={28} className="text-[#4a4a6a] mb-2" />
-          <span className="text-sm text-[#6b6b8a]">
-            {fileName || 'Drop a CSV file or click to upload'}
-          </span>
-          <span className="text-[10px] text-[#4a4a6a] mt-1">
-            Must contain &quot;date&quot; and &quot;close&quot; columns
-          </span>
-          <input
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) handleFile(f);
-            }}
-          />
-        </label>
+        {/* Tabs */}
+        <div className="flex gap-1 p-1 rounded-lg bg-[#0d0d14] mb-5">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-1.5 flex-1 px-3 py-2 rounded-md text-xs font-medium cursor-pointer transition-all border-none ${
+                activeTab === tab.id
+                  ? 'bg-green-500/15 text-green-500'
+                  : 'bg-transparent text-[#6b6b8a] hover:text-[#b0b0c8]'
+              }`}
+            >
+              <tab.icon size={14} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
+        {/* Stock Lookup */}
+        {activeTab === 'stock' && (
+          <div>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={stockSymbol}
+                onChange={(e) => setStockSymbol(e.target.value.toUpperCase())}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleStockFetch(); }}
+                placeholder="NSE symbol (e.g. RELIANCE, TCS, SBIN)"
+                aria-label="Stock symbol"
+                className="flex-1 px-3 py-2 rounded-lg bg-[#1a1a24] border border-white/[0.06] text-sm text-[#d4d4e8] outline-none focus:border-green-500/50 transition-colors placeholder:text-[#4a4a6a]"
+              />
+              <select
+                value={stockPeriod}
+                onChange={(e) => setStockPeriod(e.target.value)}
+                aria-label="Time period"
+                className="px-3 py-2 rounded-lg bg-[#1a1a24] border border-white/[0.06] text-sm text-[#d4d4e8] outline-none cursor-pointer"
+              >
+                {PERIOD_OPTIONS.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+              <button
+                onClick={() => handleStockFetch()}
+                disabled={stockLoading || !stockSymbol.trim()}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-[#0d0d14] bg-green-500 border-none cursor-pointer hover:bg-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {stockLoading ? 'Loading...' : 'Fetch'}
+              </button>
+            </div>
+
+            {/* Quick picks */}
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {POPULAR_STOCKS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleStockFetch(s)}
+                  disabled={stockLoading}
+                  className="px-2.5 py-1 rounded text-[11px] text-[#6b6b8a] bg-white/[0.04] border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-[#b0b0c8] transition-all disabled:opacity-50"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-[10px] text-[#4a4a6a]">
+              Historical data from Yahoo Finance. NSE suffix (.NS) added automatically.
+            </p>
+
+            {stockError && (
+              <p className="text-xs text-red-500 mt-2">{stockError}</p>
+            )}
+          </div>
+        )}
+
+        {/* Your Trades */}
+        {activeTab === 'trades' && (
+          <div>
+            <p className="text-sm text-[#6b6b8a] mb-3">
+              Load your trade history and visualise cumulative P&L over time.
+            </p>
+            <button
+              onClick={handleLoadTrades}
+              disabled={tradesLoading}
+              className="px-4 py-2.5 rounded-lg text-sm font-medium text-[#0d0d14] bg-green-500 border-none cursor-pointer hover:bg-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {tradesLoading ? 'Loading trades...' : 'Load My Trades'}
+            </button>
+
+            {tradesError && (
+              <p className="text-xs text-red-500 mt-2">{tradesError}</p>
+            )}
+          </div>
+        )}
+
+        {/* CSV Upload */}
+        {activeTab === 'csv' && (
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/[0.08] rounded-xl p-8 cursor-pointer hover:border-green-500/30 transition-colors">
+            <Upload size={28} className="text-[#4a4a6a] mb-2" />
+            <span className="text-sm text-[#6b6b8a]">
+              Drop a CSV file or click to upload
+            </span>
+            <span className="text-[10px] text-[#4a4a6a] mt-1">
+              Must contain &quot;date&quot; and &quot;close&quot; columns
+            </span>
+            <input
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFile(f);
+              }}
+            />
+          </label>
+        )}
+
+        {/* Data loaded indicator */}
         {rawData.length > 0 && (
-          <div className="flex items-center gap-4 mt-3">
+          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/[0.06]">
+            <span className="text-xs text-green-500 font-medium">
+              {sourceLabel}
+            </span>
             <span className="text-xs text-[#6b6b8a]">
-              {rawData.length} rows loaded
+              {rawData.length} rows
             </span>
             <button
-              onClick={() => { setRawData([]); setFileName(''); setActiveRecipes([]); }}
-              className="flex items-center gap-1 text-xs text-red-500/70 hover:text-red-500 bg-transparent border-none cursor-pointer transition-colors"
+              onClick={clearData}
+              className="flex items-center gap-1 text-xs text-red-500/70 hover:text-red-500 bg-transparent border-none cursor-pointer transition-colors ml-auto"
             >
               <Trash2 size={12} /> Clear
             </button>
