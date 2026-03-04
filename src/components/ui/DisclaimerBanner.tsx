@@ -1,21 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 import { SEBI_DISCLAIMERS } from '@/lib/constants';
 
 const STORAGE_KEY = 'bazaarsaar_disclaimer_accepted';
 
-export default function DisclaimerBanner() {
-  const [mounted, setMounted] = useState(false);
-  const [accepted, setAccepted] = useState(false);
+function subscribe(onStoreChange: () => void) {
+  window.addEventListener('storage', onStoreChange);
+  return () => window.removeEventListener('storage', onStoreChange);
+}
 
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) setAccepted(true);
-    setMounted(true);
+function getSnapshot(): boolean {
+  return localStorage.getItem(STORAGE_KEY) === 'true';
+}
+
+function getServerSnapshot(): boolean {
+  return false;
+}
+
+export default function DisclaimerBanner() {
+  const accepted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  const handleAccept = useCallback(() => {
+    localStorage.setItem(STORAGE_KEY, 'true');
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
   }, []);
 
-  if (!mounted || accepted) return null;
+  if (accepted) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title">
@@ -34,10 +45,7 @@ export default function DisclaimerBanner() {
         </div>
         <div className="flex justify-end">
           <button
-            onClick={() => {
-              localStorage.setItem(STORAGE_KEY, 'true');
-              setAccepted(true);
-            }}
+            onClick={handleAccept}
             className="px-6 py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-medium transition-colors"
           >
             I Understand

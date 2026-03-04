@@ -1,6 +1,5 @@
 'use client';
 
-import { GlassCard } from '@/components/ui/GlassCard';
 import { BrokerSettings } from '@/components/settings/BrokerSettings';
 import { AccountSettings } from '@/components/settings/AccountSettings';
 import { Settings } from 'lucide-react';

@@ -7,11 +7,10 @@ import { LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
 
 export function Header() {
-  const [status, setStatus] = useState<string>('closed');
+  const [status, setStatus] = useState<string>(() => getMarketStatus());
   const { user, signOut } = useAuth();
 
   useEffect(() => {
-    setStatus(getMarketStatus());
     const interval = setInterval(() => setStatus(getMarketStatus()), 60000);
     return () => clearInterval(interval);
   }, []);

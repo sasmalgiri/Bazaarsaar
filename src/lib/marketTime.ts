@@ -40,7 +40,7 @@ export function formatINR(value: number, compact?: boolean): string {
 export function getNextMarketOpen(): Date {
   const now = new Date();
   const ist = new Date(now.toLocaleString('en-US', { timeZone: MARKET_HOURS.timezone }));
-  let next = new Date(ist);
+  const next = new Date(ist);
   next.setHours(9, 15, 0, 0);
   if (next <= ist) next.setDate(next.getDate() + 1);
   while (next.getDay() === 0 || next.getDay() === 6) {

@@ -8,17 +8,19 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 function ZerodhaCallbackInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+
+  const requestToken = searchParams.get('request_token');
+  const state = searchParams.get('status') === 'success' ? searchParams.get('state') : null;
+  const isValid = Boolean(requestToken && state);
+
+  const [error, setError] = useState<string | null>(() =>
+    isValid ? null : 'Invalid callback. Please try connecting again.'
+  );
 
   useEffect(() => {
-    const requestToken = searchParams.get('request_token');
-    const state = searchParams.get('status') === 'success' ? searchParams.get('state') : null;
+    if (!isValid) return;
 
-    if (!requestToken || !state) {
-      setError('Invalid callback. Please try connecting again.');
-      return;
-    }
-
+    let cancelled = false;
     async function exchangeToken() {
       try {
         const res = await fetch('/api/broker/exchange-token', {
@@ -28,18 +30,20 @@ function ZerodhaCallbackInner() {
         });
 
         const data = await res.json();
+        if (cancelled) return;
         if (data.success) {
           router.replace('/settings?connected=true');
         } else {
           setError(data.error || 'Token exchange failed');
         }
       } catch {
-        setError('Failed to connect. Please try again.');
+        if (!cancelled) setError('Failed to connect. Please try again.');
       }
     }
 
     exchangeToken();
-  }, [searchParams, router]);
+    return () => { cancelled = true; };
+  }, [isValid, requestToken, state, router]);
 
   if (error) {
     return (
