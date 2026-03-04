@@ -50,8 +50,8 @@ export function OnboardingComplete() {
           background: 'linear-gradient(135deg, #16a34a, #22c55e)',
           boxShadow: '0 4px 20px rgba(34,197,94,0.25)',
         }}
-        onMouseEnter={(e) => { (e.target as HTMLElement).style.boxShadow = '0 8px 30px rgba(34,197,94,0.35)'; }}
-        onMouseLeave={(e) => { (e.target as HTMLElement).style.boxShadow = '0 4px 20px rgba(34,197,94,0.25)'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 30px rgba(34,197,94,0.35)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(34,197,94,0.25)'; }}
       >
         Enter BazaarSaar &rarr;
       </button>

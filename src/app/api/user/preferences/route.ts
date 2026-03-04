@@ -45,13 +45,18 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
+    const ALLOWED_FIELDS = ['persona', 'watchlist', 'language', 'daily_pack_time', 'notifications', 'onboarding_completed'];
+    const sanitized: Record<string, unknown> = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (key in body) sanitized[key] = body[key];
+    }
 
     const { error } = await supabase
       .from('user_profiles')
       .upsert({
         id: user.id,
         email: user.email,
-        ...body,
+        ...sanitized,
         updated_at: new Date().toISOString(),
       });
 

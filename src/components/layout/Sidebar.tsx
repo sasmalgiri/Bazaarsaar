@@ -9,9 +9,9 @@ import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard', label: 'Watchlist', icon: Eye },
-  { href: '/dashboard', label: 'Signals', icon: Zap },
-  { href: '/dashboard', label: 'Daily Pack', icon: FileText },
+  { href: '/dashboard/watchlist', label: 'Watchlist', icon: Eye },
+  { href: '/dashboard/signals', label: 'Signals', icon: Zap },
+  { href: '/dashboard/daily-pack', label: 'Daily Pack', icon: FileText },
 ];
 
 const LEGAL_ITEMS = [
@@ -52,7 +52,7 @@ export function Sidebar() {
       <nav className="flex-1 px-3 py-4">
         <div className="space-y-1">
           {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.label}

@@ -38,7 +38,7 @@ export function PersonaSelector() {
                 onClick={() => handleSelect(key)}
                 onMouseEnter={() => setHoveredPersona(key)}
                 onMouseLeave={() => setHoveredPersona(null)}
-                className="relative text-left p-7 rounded-2xl bg-[rgba(17,17,24,0.7)] backdrop-blur-xl transition-all duration-400 outline-none"
+                className="relative text-left p-7 rounded-2xl bg-[rgba(17,17,24,0.7)] backdrop-blur-xl transition-all duration-[400ms] outline-none"
                 style={{
                   border: `1px solid ${isHovered ? config.accentBorder : 'rgba(255,255,255,0.06)'}`,
                   boxShadow: isHovered ? config.glowColor : 'none',

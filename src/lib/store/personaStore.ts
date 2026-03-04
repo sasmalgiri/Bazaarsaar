@@ -12,6 +12,7 @@ interface PersonaState {
   notifications: boolean;
   onboardingCompleted: boolean;
   onboardingStep: number;
+  _hasHydrated: boolean;
 }
 
 interface PersonaActions {
@@ -31,7 +32,7 @@ interface PersonaActions {
 
 type PersonaStore = PersonaState & PersonaActions;
 
-const initialState: PersonaState = {
+const initialState: Omit<PersonaState, '_hasHydrated'> = {
   persona: null,
   watchlist: [],
   language: 'en',
@@ -45,6 +46,7 @@ export const usePersonaStore = create<PersonaStore>()(
   persist(
     (set) => ({
       ...initialState,
+      _hasHydrated: false,
 
       setPersona: (persona) => set({ persona }),
       setWatchlist: (symbols) => set({ watchlist: symbols }),
@@ -87,7 +89,11 @@ export const usePersonaStore = create<PersonaStore>()(
         dailyPackTime: state.dailyPackTime,
         notifications: state.notifications,
         onboardingCompleted: state.onboardingCompleted,
+        onboardingStep: state.onboardingStep,
       }),
+      onRehydrateStorage: () => () => {
+        usePersonaStore.setState({ _hasHydrated: true });
+      },
     }
   )
 );

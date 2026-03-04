@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
+import { DM_Sans } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/Providers';
 import DisclaimerBanner from '@/components/ui/DisclaimerBanner';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
+const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://bazaarsaar.com';
 
@@ -35,14 +40,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="bg-[#0a0a0f] ambient-bg">
+    <html lang="en">
+      <body className={`${dmSans.className} bg-[#0a0a0f] ambient-bg`}>
         <Providers>
           <DisclaimerBanner />
           <main className="min-h-screen relative z-10">
             {children}
           </main>
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
