@@ -28,8 +28,11 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
   const isProtected = request.nextUrl.pathname.startsWith('/dashboard')
     || request.nextUrl.pathname.startsWith('/trades')
+    || request.nextUrl.pathname.startsWith('/playbooks')
+    || request.nextUrl.pathname.startsWith('/datalab')
     || request.nextUrl.pathname.startsWith('/review')
-    || request.nextUrl.pathname.startsWith('/settings');
+    || request.nextUrl.pathname.startsWith('/settings')
+    || request.nextUrl.pathname.startsWith('/onboarding/guide');
 
   if (isProtected && !user) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
@@ -43,5 +46,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/trades/:path*', '/review/:path*', '/settings/:path*', '/auth/:path*'],
+  matcher: ['/dashboard/:path*', '/trades/:path*', '/playbooks/:path*', '/datalab/:path*', '/review/:path*', '/settings/:path*', '/onboarding/guide', '/auth/:path*'],
 };

@@ -55,6 +55,7 @@ export interface JournalEntry {
   id: string;
   user_id: string;
   trade_id: string;
+  playbook_id?: string;
   thesis?: string;
   invalidation?: string;
   emotion?: EmotionTag;
@@ -69,6 +70,7 @@ export interface JournalEntry {
 export interface TagDef {
   id: string;
   user_id: string;
+  tag_type: string;
   label: string;
   color: string;
   created_at: string;
@@ -93,7 +95,93 @@ export interface WeeklyReport {
   top_symbols: string[];
   emotion_distribution: Record<string, number>;
   notes?: string;
+  playbook_used_count?: number;
+  avg_checklist_completion?: number;
+  top_missed_steps?: string[];
   generated_at: string;
+}
+
+// ========== GUIDED MODE ==========
+export type MarketType = 'EQ' | 'FNO';
+export type TradingStyle = 'INTRADAY' | 'SWING' | 'LONGTERM';
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export interface GuidedProfile {
+  user_id: string;
+  market: MarketType;
+  style: TradingStyle;
+  risk: RiskLevel;
+  created_at: string;
+  updated_at: string;
+}
+
+// ========== PLAYBOOKS ==========
+export type PlaybookLevel = 'BEGINNER' | 'PRO' | 'CUSTOM';
+export type StepCategory = 'setup' | 'entry' | 'risk' | 'exit' | 'psych' | 'general';
+
+export interface PlaybookTemplate {
+  id: string;
+  title: string;
+  description: string;
+  market: MarketType;
+  level: PlaybookLevel;
+  created_at: string;
+}
+
+export interface PlaybookTemplateStep {
+  id: string;
+  template_id: string;
+  step_order: number;
+  category: StepCategory;
+  step_text: string;
+  required: boolean;
+}
+
+export interface UserPlaybook {
+  id: string;
+  user_id: string;
+  template_id?: string;
+  title: string;
+  description: string;
+  market: MarketType;
+  level: PlaybookLevel;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserPlaybookStep {
+  id: string;
+  playbook_id: string;
+  step_order: number;
+  category: StepCategory;
+  step_text: string;
+  required: boolean;
+}
+
+export interface JournalCheck {
+  journal_entry_id: string;
+  step_id: string;
+  checked: boolean;
+  updated_at: string;
+}
+
+// ========== DATALAB ==========
+export interface DataLabRecipe {
+  id: string;
+  title: string;
+  description: string;
+  steps: { op: string; [key: string]: unknown }[];
+  created_at: string;
+}
+
+export interface DataLabExperiment {
+  id: string;
+  user_id: string;
+  title: string;
+  recipe_id?: string;
+  inputs: Record<string, unknown>;
+  params: Record<string, unknown>;
+  created_at: string;
 }
 
 // ========== BROKER CONNECTION ==========

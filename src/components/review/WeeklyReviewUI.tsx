@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
 import { SEBIDisclaimer } from '@/components/ui/SEBIDisclaimer';
-import { TrendingUp, TrendingDown, BarChart3, BookOpen } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3, BookOpen, BookCheck, AlertTriangle } from 'lucide-react';
 import type { WeeklyReport } from '@/types';
 
 export function WeeklyReviewUI() {
@@ -158,6 +158,52 @@ export function WeeklyReviewUI() {
                 <div key={emotion} className="flex items-center justify-between">
                   <span className="text-xs text-[#6b6b8a] capitalize">{emotion}</span>
                   <span className="text-xs font-mono text-[#d4d4e8]">{count as number}</span>
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        )}
+
+        {/* Playbook Adherence */}
+        {(report.playbook_used_count ?? 0) > 0 && (
+          <GlassCard className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <BookCheck size={16} className="text-green-500" />
+              <h3 className="text-sm font-semibold text-[#d4d4e8]">Playbook Adherence</h3>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#6b6b8a]">Trades with playbook</span>
+                <span className="text-sm font-mono text-[#d4d4e8]">{report.playbook_used_count}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#6b6b8a]">Avg checklist completion</span>
+                <span className="text-sm font-mono text-[#d4d4e8]">
+                  {Number(report.avg_checklist_completion ?? 0).toFixed(0)}%
+                </span>
+              </div>
+              {/* Progress bar */}
+              <div className="w-full h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-green-500 transition-all"
+                  style={{ width: `${Math.min(100, Number(report.avg_checklist_completion ?? 0))}%` }}
+                />
+              </div>
+            </div>
+          </GlassCard>
+        )}
+
+        {report.top_missed_steps && report.top_missed_steps.length > 0 && (
+          <GlassCard className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle size={16} className="text-amber-500" />
+              <h3 className="text-sm font-semibold text-[#d4d4e8]">Most Missed Steps</h3>
+            </div>
+            <div className="space-y-2">
+              {report.top_missed_steps.map((step, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <span className="text-[10px] font-mono text-amber-500/70 mt-0.5">{i + 1}.</span>
+                  <span className="text-xs text-[#6b6b8a]">{step}</span>
                 </div>
               ))}
             </div>

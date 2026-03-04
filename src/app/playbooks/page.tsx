@@ -1,0 +1,170 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { createClient } from '@/lib/supabase/client';
+import { BookCheck, Copy, Plus } from 'lucide-react';
+import Link from 'next/link';
+import type { UserPlaybook, PlaybookTemplate } from '@/types';
+
+export default function PlaybooksPage() {
+  const [myPlaybooks, setMyPlaybooks] = useState<UserPlaybook[]>([]);
+  const [templates, setTemplates] = useState<PlaybookTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [cloning, setCloning] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetch() {
+      const supabase = createClient();
+
+      const [{ data: my }, { data: tpl }] = await Promise.all([
+        supabase.from('user_playbook').select('*').order('created_at', { ascending: false }),
+        supabase.from('playbook_template').select('*').order('level'),
+      ]);
+
+      setMyPlaybooks((my as unknown as UserPlaybook[]) || []);
+      setTemplates((tpl as unknown as PlaybookTemplate[]) || []);
+      setLoading(false);
+    }
+    fetch();
+  }, []);
+
+  const handleClone = async (templateId: string) => {
+    setCloning(templateId);
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const res = await globalThis.fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/clone_playbook_template`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ template_id: templateId }),
+      });
+
+      const data = await res.json();
+      if (data.ok && data.playbook_id) {
+        // Refresh playbooks
+        const { data: updated } = await supabase.from('user_playbook').select('*').order('created_at', { ascending: false });
+        setMyPlaybooks((updated as unknown as UserPlaybook[]) || []);
+      }
+    } finally {
+      setCloning(null);
+    }
+  };
+
+  const handleCreateCustom = async () => {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase.from('user_playbook').insert({
+      user_id: user.id,
+      title: 'Custom Playbook',
+      description: 'My custom trading checklist.',
+      market: 'EQ',
+      level: 'CUSTOM',
+    }).select('id').single();
+
+    if (data) {
+      const { data: updated } = await supabase.from('user_playbook').select('*').order('created_at', { ascending: false });
+      setMyPlaybooks((updated as unknown as UserPlaybook[]) || []);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto">
+        <GlassCard className="p-8 text-center">
+          <p className="text-sm text-[#6b6b8a]">Loading playbooks...</p>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto animate-fade-in">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <BookCheck size={24} className="text-green-500" />
+          <h1 className="text-2xl font-bold text-[#fafaff]">Playbooks</h1>
+        </div>
+        <button
+          onClick={handleCreateCustom}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium text-green-500 border border-green-500/20 bg-transparent cursor-pointer hover:bg-green-500/10 transition-all"
+        >
+          <Plus size={14} />
+          New Custom Playbook
+        </button>
+      </div>
+
+      {/* My Playbooks */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold text-[#6b6b8a] uppercase tracking-wider mb-3">My Playbooks</h2>
+        {myPlaybooks.length === 0 ? (
+          <GlassCard className="p-6 text-center">
+            <p className="text-sm text-[#6b6b8a] mb-1">No playbooks yet</p>
+            <p className="text-xs text-[#4a4a6a]">Clone a template below or create a custom one.</p>
+          </GlassCard>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {myPlaybooks.map((pb) => (
+              <Link key={pb.id} href={`/playbooks/${pb.id}`} className="no-underline">
+                <GlassCard className="p-5 hover:bg-white/[0.03] transition-colors cursor-pointer">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-[#d4d4e8] mb-1">{pb.title}</h3>
+                      <p className="text-xs text-[#4a4a6a] line-clamp-2">{pb.description}</p>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-white/[0.06] text-[#6b6b8a]">{pb.market}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-white/[0.06] text-[#6b6b8a]">{pb.level}</span>
+                    </div>
+                  </div>
+                </GlassCard>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Template Library */}
+      <div>
+        <h2 className="text-sm font-semibold text-[#6b6b8a] uppercase tracking-wider mb-3">Template Library</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {templates.map((tpl) => (
+            <GlassCard key={tpl.id} className="p-5">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-[#d4d4e8] mb-1">{tpl.title}</h3>
+                  <p className="text-xs text-[#4a4a6a]">{tpl.description}</p>
+                </div>
+                <div className="flex gap-1.5">
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-white/[0.06] text-[#6b6b8a]">{tpl.market}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded ${
+                    tpl.level === 'PRO' ? 'bg-purple-500/10 text-purple-500' : 'bg-green-500/10 text-green-500'
+                  }`}>{tpl.level}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => handleClone(tpl.id)}
+                disabled={cloning === tpl.id}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-[#d4d4e8] bg-white/[0.06] border border-white/[0.08] cursor-pointer hover:bg-white/[0.1] transition-colors disabled:opacity-50"
+              >
+                <Copy size={12} />
+                {cloning === tpl.id ? 'Copying...' : 'Copy to My Playbooks'}
+              </button>
+            </GlassCard>
+          ))}
+        </div>
+      </div>
+
+      <p className="text-[10px] text-[#4a4a6a] text-center mt-6">
+        Playbooks are checklists for documentation. Not recommendations.
+      </p>
+    </div>
+  );
+}

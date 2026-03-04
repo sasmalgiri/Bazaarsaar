@@ -106,6 +106,66 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── Playbook adherence metrics ──
+    let playbookUsedCount = 0;
+    let avgChecklistCompletion = 0;
+    const missedStepCounts: Record<string, number> = {};
+
+    if (journals && journals.length > 0) {
+      // Fetch journal entries with playbook_id for this week's trades
+      const { data: pbJournals } = await serviceClient
+        .from('journal_entry')
+        .select('id, playbook_id')
+        .eq('user_id', user.id)
+        .in('trade_id', tradeIds)
+        .not('playbook_id', 'is', null);
+
+      if (pbJournals && pbJournals.length > 0) {
+        playbookUsedCount = pbJournals.length;
+
+        const journalIds = pbJournals.map((j: { id: string }) => j.id);
+        const { data: checks } = await serviceClient
+          .from('journal_check')
+          .select('journal_entry_id, step_id, checked')
+          .in('journal_entry_id', journalIds);
+
+        if (checks && checks.length > 0) {
+          // Group checks by journal entry
+          const byJournal: Record<string, { total: number; checked: number }> = {};
+          checks.forEach((c: { journal_entry_id: string; step_id: string; checked: boolean }) => {
+            if (!byJournal[c.journal_entry_id]) byJournal[c.journal_entry_id] = { total: 0, checked: 0 };
+            byJournal[c.journal_entry_id].total += 1;
+            if (c.checked) byJournal[c.journal_entry_id].checked += 1;
+          });
+
+          // Average completion rate across all journaled trades
+          const rates = Object.values(byJournal).map((v) => v.total > 0 ? (v.checked / v.total) * 100 : 0);
+          avgChecklistCompletion = rates.reduce((s, r) => s + r, 0) / rates.length;
+
+          // Find unchecked steps and get their text
+          const uncheckedStepIds = checks
+            .filter((c: { checked: boolean }) => !c.checked)
+            .map((c: { step_id: string }) => c.step_id);
+
+          if (uncheckedStepIds.length > 0) {
+            const { data: stepDefs } = await serviceClient
+              .from('user_playbook_step')
+              .select('id, step_text')
+              .in('id', uncheckedStepIds);
+
+            stepDefs?.forEach((s: { id: string; step_text: string }) => {
+              missedStepCounts[s.step_text] = (missedStepCounts[s.step_text] || 0) + 1;
+            });
+          }
+        }
+      }
+    }
+
+    const topMissedSteps = Object.entries(missedStepCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([text]) => text);
+
     // Upsert weekly report
     const report = {
       user_id: user.id,
@@ -123,6 +183,9 @@ Deno.serve(async (req) => {
       journal_fill_rate: journalFillRate,
       top_symbols: topSymbols,
       emotion_distribution: emotionDist,
+      playbook_used_count: playbookUsedCount,
+      avg_checklist_completion: avgChecklistCompletion,
+      top_missed_steps: topMissedSteps,
       generated_at: new Date().toISOString(),
     };
 
