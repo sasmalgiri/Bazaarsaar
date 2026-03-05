@@ -5,27 +5,30 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Eye, ArrowLeftRight, CalendarCheck, Settings, Scale, Shield, BookOpen, BookCheck, FlaskConical } from 'lucide-react';
 import { usePersonaStore } from '@/lib/store/personaStore';
 import { PERSONA_CONFIGS } from '@/lib/persona/definitions';
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import type { TranslationKey } from '@/lib/i18n/translations';
 import { cn } from '@/lib/utils';
 
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/watchlist', label: 'Watchlist', icon: Eye },
-  { href: '/trades', label: 'Trades', icon: ArrowLeftRight },
-  { href: '/playbooks', label: 'Playbooks', icon: BookCheck },
-  { href: '/datalab', label: 'DataLab', icon: FlaskConical },
-  { href: '/review/weekly', label: 'Weekly Review', icon: CalendarCheck },
-  { href: '/settings', label: 'Settings', icon: Settings },
+const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: typeof LayoutDashboard }[] = [
+  { href: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/watchlist', labelKey: 'nav.watchlist', icon: Eye },
+  { href: '/trades', labelKey: 'nav.trades', icon: ArrowLeftRight },
+  { href: '/playbooks', labelKey: 'nav.playbooks', icon: BookCheck },
+  { href: '/datalab', labelKey: 'nav.datalab', icon: FlaskConical },
+  { href: '/review/weekly', labelKey: 'nav.weeklyReview', icon: CalendarCheck },
+  { href: '/settings', labelKey: 'nav.settings', icon: Settings },
 ];
 
-const LEGAL_ITEMS = [
-  { href: '/terms', label: 'Terms', icon: Scale },
-  { href: '/privacy', label: 'Privacy', icon: Shield },
-  { href: '/disclaimer', label: 'Disclaimer', icon: BookOpen },
+const LEGAL_ITEMS: { href: string; labelKey: TranslationKey; icon: typeof Scale }[] = [
+  { href: '/terms', labelKey: 'nav.terms', icon: Scale },
+  { href: '/privacy', labelKey: 'nav.privacy', icon: Shield },
+  { href: '/disclaimer', labelKey: 'nav.disclaimer', icon: BookOpen },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { persona } = usePersonaStore();
+  const { t } = useTranslation();
   const config = persona ? PERSONA_CONFIGS[persona] : null;
 
   return (
@@ -58,7 +61,7 @@ export function Sidebar() {
             const isActive = item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href);
             return (
               <Link
-                key={item.label}
+                key={item.labelKey}
                 href={item.href}
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm no-underline transition-colors',
@@ -68,7 +71,7 @@ export function Sidebar() {
                 )}
               >
                 <item.icon size={18} />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             );
           })}
@@ -80,12 +83,12 @@ export function Sidebar() {
         <div className="space-y-0.5">
           {LEGAL_ITEMS.map((item) => (
             <Link
-              key={item.label}
+              key={item.labelKey}
               href={item.href}
               className="flex items-center gap-2 px-3 py-1.5 text-[11px] text-[#4a4a6a] hover:text-[#6b6b8a] no-underline transition-colors"
             >
               <item.icon size={12} />
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           ))}
         </div>

@@ -17,7 +17,7 @@ export function WatchlistBuilder() {
         <span className="text-3xl block mb-2">{config.icon}</span>
         <h2 className="text-3xl font-bold text-[#fafaff] mb-2">Build Your Watchlist</h2>
         <p className="text-[#6b6b8a]">
-          Pick starter packs or add stocks. Your daily intelligence is built from this.
+          Pick starter packs or add stocks. Your daily summaries are built from this.
         </p>
       </div>
 

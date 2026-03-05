@@ -1,5 +1,5 @@
 // BazaarSaar Service Worker - Minimal PWA stub
-self.addEventListener('install', (event) => {
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 

@@ -1,121 +1,127 @@
-# Bazaarsaar — बाज़ारसार
+# BazaarSaar — बाज़ारसार
 
-> **The essence of the Indian market, every day.**
+Trade journal, broker sync, and weekly analytics for swing traders, long-term investors, and options traders in the Indian stock market.
 
-Daily intelligence, explainable signals, and portfolio analytics for every type of market participant — swing traders, long-term investors, and options traders.
+## What’s in this repo
 
----
+- Next.js App Router web app (Next.js 16, React 19, TypeScript)
+- Supabase Auth + Postgres (via `@supabase/ssr`)
+- Protected routes via middleware (`/dashboard`, `/trades`, `/playbooks`, `/datalab`, `/review`, `/settings`, `/onboarding/guide`)
+- Optional Zerodha Kite Connect integration (feature-flagged)
+- Cron route handlers (protected by `CRON_SECRET`)
 
-## Architecture
+## Project structure (high level)
 
 ```
-bazaarsaar/
-├── src/
-│   ├── app/                    # Next.js App Router pages
-│   │   ├── layout.tsx          # Root layout (fonts, metadata, PWA)
-│   │   ├── page.tsx            # Root redirect
-│   │   ├── onboarding/         # Persona selection + setup flow
-│   │   └── dashboard/          # Main dashboard (Phase 1)
-│   ├── components/
-│   │   ├── onboarding/         # Persona selector, watchlist setup, preferences
-│   │   ├── ui/                 # Shared UI components
-│   │   ├── layout/             # App shell, sidebar, header
-│   │   └── dashboard/          # Dashboard-specific components
-│   ├── lib/
-│   │   ├── supabase.ts         # Supabase client (browser + server)
-│   │   ├── store.ts            # Zustand global state
-│   │   └── utils.ts            # Formatters, helpers, market time utils
-│   ├── types/
-│   │   └── index.ts            # All TypeScript types (Personas, Signals, etc.)
-│   ├── styles/
-│   │   └── globals.css         # Tailwind + custom properties + glass UI
-│   └── workers/                # Python data pipeline
-│       ├── main.py             # Scheduler (APScheduler)
-│       ├── config.py           # Shared config, DB client, constants
-│       ├── nse_ingest.py       # NSE/Yahoo data ingestion
-│       ├── signal_generator.py # Explainable signal computation
-│       └── requirements.txt    # Python dependencies
-├── supabase/
-│   └── migrations/
-│       └── 001_initial_schema.sql  # Full database schema
-├── public/
-│   └── manifest.json           # PWA manifest
-└── config files                # next.config, tailwind, tsconfig, etc.
+src/
+	app/                  Next.js routes (UI + route handlers under app/api)
+	components/           UI + feature components (dashboard, onboarding, trades, settings)
+	lib/                  Auth, Supabase clients, feature flags, utilities
+	types/                Shared TypeScript types
+supabase/
+	migrations/           Database migrations
+public/                 Static assets (PWA manifest, robots, service worker)
 ```
 
-## Tech Stack
+Key files:
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 14 (App Router), React 18, TypeScript |
-| Styling | Tailwind CSS, Framer Motion, Glassmorphism |
-| State | Zustand (persisted) |
-| Database | Supabase (PostgreSQL + Auth + RLS) |
-| Data Pipeline | Python 3.11+, Yahoo Finance, NSE APIs |
-| Charts | Recharts |
-| Deployment | Vercel (frontend), Railway (workers) |
-| PWA | next-pwa |
+- `src/middleware.ts` — auth gating + redirects
+- `src/lib/supabase/*` — browser/server/admin Supabase clients
+- `src/lib/featureFlags.ts` — runtime feature flags
 
-## Quick Start
+## Prerequisites
 
-### Frontend
+- Node.js 18+ (LTS preferred)
+- A Supabase project (URL + anon key; service role key for admin/server operations)
+- (Optional) Supabase CLI if you want to push migrations from this repo
+
+## Quick start (local)
 
 ```bash
-# Install dependencies
 npm install
 
-# Copy environment variables
-cp .env.example .env
-# Fill in your Supabase credentials
+# Create a local env file (Next.js loads .env.local by default)
+# macOS/Linux:
+cp .env.example .env.local
 
-# Run development server
+# Windows (PowerShell):
+# Copy-Item .env.example .env.local
+
+# Fill in at least NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 npm run dev
 ```
 
-### Database
+App runs at `http://localhost:3000`.
+
+## Environment variables
+
+This repo includes `.env.example`. The important variables are:
+
+### Required (most flows)
+
+- `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anon key (public)
+- `NEXT_PUBLIC_APP_URL` — canonical app URL (used for OAuth redirect + metadata)
+
+### Recommended
+
+- `NEXT_PUBLIC_ADMIN_EMAILS` — comma-separated list of admin emails
+
+### Feature flags
+
+All flags are optional; they default to sensible values in code.
+
+- `NEXT_PUBLIC_APP_MODE` — `beta` or `full`
+- `NEXT_PUBLIC_BETA_MODE` — `true`/`false`
+- `NEXT_PUBLIC_FEATURE_*` — toggles parts of the UI (see `.env.example`)
+
+### Zerodha (optional)
+
+Used by API routes under `src/app/api/broker/*`.
+
+- `ZERODHA_API_KEY`
+- `ZERODHA_API_SECRET`
+- `ZERODHA_TOKEN_ENCRYPTION_KEY` — 64-char hex key (AES-256) for encrypting tokens at rest
+
+### Cron (optional)
+
+Cron endpoints under `src/app/api/cron/*` require an auth header:
+
+- `CRON_SECRET`
+
+Send requests with `Authorization: Bearer <CRON_SECRET>`.
+
+### Server-only (keep secret)
+
+- `SUPABASE_SERVICE_ROLE_KEY` — required for admin/server operations; never expose to the client
+
+## Database migrations (Supabase)
+
+This repo includes SQL migrations in `supabase/migrations/`.
+
+If you have Supabase CLI set up:
 
 ```bash
-# Link your Supabase project
-npx supabase link --project-ref YOUR_PROJECT_REF
-
-# Push migrations
 npm run db:migrate
 ```
 
-### Data Pipeline
+That runs `npx supabase db push`.
 
-```bash
-cd src/workers
+## Scripts
 
-# Install Python dependencies
-pip install -r requirements.txt
+- `npm run dev` — start dev server
+- `npm run dev:https` — start dev server with experimental HTTPS
+- `npm run build` — production build
+- `npm run start` — run production server
+- `npm run lint` — ESLint
+- `npm run db:migrate` — push Supabase migrations
 
-# Run full data ingestion
-python nse_ingest.py full
+## Security notes
 
-# Start the scheduler
-python main.py
-
-# With immediate catch-up run
-python main.py --run-now
-```
-
-## Persona System
-
-Three lenses on the same data engine:
-
-| Persona | Focus | Key Signals |
-|---------|-------|-------------|
-| ⚡ Swing Trader | Momentum, breakouts, 1-30 days | EMA cross, volume spike, RSI, breakout |
-| 🏦 Investor | Fundamentals, compounding, 1+ years | P/E, ROE, promoter changes, 52w proximity |
-| 🎯 Options Trader | Greeks, IV, OI analysis | IV rank, PCR, max pain, unusual OI |
-
-## Phase Roadmap
-
-- **Phase 1 (Weeks 1-10):** Daily Intelligence Pack + Persona onboarding
-- **Phase 2 (Weeks 11-16):** Cross-broker portfolio analytics
-- **Phase 3 (Weeks 17-22):** Explainable screener/signals engine
+- Response security headers + CSP are configured in `next.config.ts`.
+- Several API routes enforce “display-only” access checks (see `src/lib/apiSecurity.ts`).
 
 ## License
 
-Private — All rights reserved.
+Private — all rights reserved.

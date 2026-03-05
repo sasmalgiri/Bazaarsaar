@@ -45,24 +45,24 @@ const PERSONA_CONFIGS = {
 const STARTER_PACKS = {
   swing_trader: [
     { name: "Nifty 50 Movers", symbols: ["RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK", "BHARTIARTL", "ITC", "SBIN", "LT", "KOTAKBANK"] },
-    { name: "Momentum Picks", symbols: ["TATAELXSI", "POLYCAB", "DIXON", "PERSISTENT", "ABB", "BEL", "HAL", "BHEL"] },
+    { name: "Momentum Watchlist", symbols: ["TATAELXSI", "POLYCAB", "DIXON", "PERSISTENT", "ABB", "BEL", "HAL", "BHEL"] },
     { name: "Bank Nifty", symbols: ["HDFCBANK", "ICICIBANK", "SBIN", "KOTAKBANK", "AXISBANK", "INDUSINDBK"] },
   ],
   investor: [
     { name: "Blue Chips", symbols: ["RELIANCE", "TCS", "HDFCBANK", "INFY", "HINDUNILVR", "BAJFINANCE", "BHARTIARTL", "ITC"] },
-    { name: "Dividend Stars", symbols: ["COALINDIA", "POWERGRID", "ONGC", "ITC", "HINDUNILVR", "INFY", "TCS"] },
-    { name: "Growth Compounders", symbols: ["PIDILITIND", "DMART", "TITAN", "BAJFINANCE", "PERSISTENT", "DIXON"] },
+    { name: "Dividend Watchlist", symbols: ["COALINDIA", "POWERGRID", "ONGC", "ITC", "HINDUNILVR", "INFY", "TCS"] },
+    { name: "Growth Watchlist", symbols: ["PIDILITIND", "DMART", "TITAN", "BAJFINANCE", "PERSISTENT", "DIXON"] },
   ],
   options_trader: [
     { name: "High OI (FnO)", symbols: ["NIFTY", "BANKNIFTY", "RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK", "SBIN"] },
-    { name: "Volatile Movers", symbols: ["TATAMOTORS", "ADANIENT", "BAJFINANCE", "DLF", "ZOMATO", "IRCTC"] },
+    { name: "Volatile Watchlist", symbols: ["TATAMOTORS", "ADANIENT", "BAJFINANCE", "DLF", "ZOMATO", "IRCTC"] },
     { name: "Index Only", symbols: ["NIFTY", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY"] },
   ],
 };
 
 const FEATURES = [
-  { emoji: "📊", title: "Daily Intelligence Pack", desc: "Every morning — what changed, why it matters, exportable." },
-  { emoji: "🔔", title: "Explainable Signals", desc: "Why it fired, historical hit rate, and regime context." },
+  { emoji: "📊", title: "Daily Summary Pack", desc: "Every morning — what changed, what it means, exportable." },
+  { emoji: "🔔", title: "Explainable Insights", desc: "What changed, historical context, and regime notes." },
   { emoji: "💼", title: "Portfolio Analytics", desc: "Unified P&L across brokers. Connect later." },
 ];
 
@@ -144,7 +144,7 @@ export default function App() {
                           <div style={{ fontSize: 12, color: "#6b6b8a" }}>{config.labelHindi}</div>
                         </div>
                       </div>
-                      <p style={{ fontSize: 13, color: "#4a4a6a", fontStyle: "italic", marginBottom: 16 }}>"{config.tagline}"</p>
+                      <p style={{ fontSize: 13, color: "#4a4a6a", fontStyle: "italic", marginBottom: 16 }}>&quot;{config.tagline}&quot;</p>
                       <p style={{ fontSize: 13, color: "#9090aa", marginBottom: 20, lineHeight: 1.6 }}>{config.description}</p>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 20 }}>
                         {config.metrics.map((m) => (
@@ -165,7 +165,7 @@ export default function App() {
                 })}
               </div>
               <p style={{ textAlign: "center", fontSize: 12, color: "#4a4a6a", marginTop: 32 }}>
-                Your choice shapes what signals, metrics, and workflows surface for you.
+                Your choice shapes what insights, metrics, and workflows surface for you.
               </p>
             </div>
           )}
@@ -176,7 +176,7 @@ export default function App() {
               <div style={{ textAlign: "center", marginBottom: 40 }}>
                 <span style={{ fontSize: 32, display: "block", marginBottom: 8 }}>{PERSONA_CONFIGS[persona].icon}</span>
                 <h2 style={{ fontSize: 30, fontWeight: 700, color: "#fafaff", marginBottom: 8 }}>Build Your Watchlist</h2>
-                <p style={{ color: "#6b6b8a" }}>Pick starter packs or add stocks. Your daily intelligence is built from this.</p>
+                <p style={{ color: "#6b6b8a" }}>Pick starter packs or add stocks. Your daily summaries are built from this.</p>
               </div>
 
               <div style={{ marginBottom: 32 }}>
@@ -291,7 +291,7 @@ export default function App() {
           {step === 3 && persona && (
             <div style={{ width: "100%", maxWidth: 480, margin: "0 auto", textAlign: "center" }}>
               <div style={{ fontSize: 56, marginBottom: 16 }}>{PERSONA_CONFIGS[persona].icon}</div>
-              <h2 style={{ fontSize: 36, fontWeight: 700, color: "#fafaff", marginBottom: 12 }}>You're all set!</h2>
+              <h2 style={{ fontSize: 36, fontWeight: 700, color: "#fafaff", marginBottom: 12 }}>You&apos;re all set!</h2>
               <p style={{ color: "#6b6b8a", marginBottom: 32 }}>
                 Your <span style={{ color: "#d4d4e8", fontWeight: 500 }}>{PERSONA_CONFIGS[persona].label}</span> universe is ready with <span style={{ fontFamily: "monospace", color: "#d4d4e8" }}>{symbols.length}</span> stocks.
               </p>

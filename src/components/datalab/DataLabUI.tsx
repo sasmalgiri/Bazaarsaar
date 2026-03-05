@@ -462,7 +462,7 @@ export function DataLabUI() {
               </button>
             </div>
 
-            {/* Quick picks */}
+            {/* Popular stocks */}
             <div className="flex flex-wrap gap-1.5 mb-2">
               {POPULAR_STOCKS.map((s) => (
                 <button

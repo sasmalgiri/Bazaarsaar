@@ -48,17 +48,17 @@ export const PERSONA_CONFIGS: Record<PersonaId, PersonaConfig> = {
 export const STARTER_PACKS: Record<PersonaId, StarterPack[]> = {
   swing_trader: [
     { name: 'Nifty 50 Movers', symbols: ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'BHARTIARTL', 'ITC', 'SBIN', 'LT', 'KOTAKBANK'] },
-    { name: 'Momentum Picks', symbols: ['TATAELXSI', 'POLYCAB', 'DIXON', 'PERSISTENT', 'ABB', 'BEL', 'HAL', 'BHEL'] },
+    { name: 'Momentum Watchlist', symbols: ['TATAELXSI', 'POLYCAB', 'DIXON', 'PERSISTENT', 'ABB', 'BEL', 'HAL', 'BHEL'] },
     { name: 'Bank Nifty', symbols: ['HDFCBANK', 'ICICIBANK', 'SBIN', 'KOTAKBANK', 'AXISBANK', 'INDUSINDBK'] },
   ],
   investor: [
     { name: 'Blue Chips', symbols: ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'HINDUNILVR', 'BAJFINANCE', 'BHARTIARTL', 'ITC'] },
-    { name: 'Dividend Stars', symbols: ['COALINDIA', 'POWERGRID', 'ONGC', 'ITC', 'HINDUNILVR', 'INFY', 'TCS'] },
-    { name: 'Growth Compounders', symbols: ['PIDILITIND', 'DMART', 'TITAN', 'BAJFINANCE', 'PERSISTENT', 'DIXON'] },
+    { name: 'Dividend Watchlist', symbols: ['COALINDIA', 'POWERGRID', 'ONGC', 'ITC', 'HINDUNILVR', 'INFY', 'TCS'] },
+    { name: 'Growth Watchlist', symbols: ['PIDILITIND', 'DMART', 'TITAN', 'BAJFINANCE', 'PERSISTENT', 'DIXON'] },
   ],
   options_trader: [
     { name: 'High OI (FnO)', symbols: ['NIFTY', 'BANKNIFTY', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN'] },
-    { name: 'Volatile Movers', symbols: ['TATAMOTORS', 'ADANIENT', 'BAJFINANCE', 'DLF', 'ZOMATO', 'IRCTC'] },
+    { name: 'Volatile Watchlist', symbols: ['TATAMOTORS', 'ADANIENT', 'BAJFINANCE', 'DLF', 'ZOMATO', 'IRCTC'] },
     { name: 'Index Only', symbols: ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY'] },
   ],
 };
