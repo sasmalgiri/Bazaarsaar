@@ -460,6 +460,7 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
             <div className="flex flex-wrap gap-2 mb-3">
               {attachments.map((a) => (
                 <div key={a.id} className="relative group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={a.url}
                     alt={a.file_name}

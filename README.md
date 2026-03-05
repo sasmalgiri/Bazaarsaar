@@ -122,6 +122,49 @@ That runs `npx supabase db push`.
 - Response security headers + CSP are configured in `next.config.ts`.
 - Several API routes enforce “display-only” access checks (see `src/lib/apiSecurity.ts`).
 
+## Roadmap alignment (Final Roadmap)
+
+BazaarSaar is being built as a **Trading Workflow OS** (analytics + journaling + research + simulation).
+
+### Non‑negotiables (enforced)
+
+- No signals, no predictions, no recommendations
+- No copy trading, no auto-trading
+- Zerodha-first (read-only) + **CSV import fallback must always work**
+
+**Current enforcement status (repo):**
+
+- UI copy + disclaimers explicitly state “no advice / no recommendations / no signals” (see legal pages + `src/lib/constants.ts`).
+- Zerodha tokens are encrypted at rest (`ZERODHA_TOKEN_ENCRYPTION_KEY`) and stored in `broker_connection`.
+- CSV import flow exists and is the fallback if broker access changes (`/api/import/csv`).
+
+### Phase checklist (what’s done vs remaining)
+
+This repo already implements a large part of Phases 0–2 and parts of Phase 5.
+
+- Phase 0 (Foundations + Compliance)
+	- Done: Next.js + TypeScript app, Supabase Auth + Postgres migrations, DPDP-style export/delete/consent logging, audit events, encrypted broker tokens.
+	- Remaining (if strictly following roadmap): FastAPI backend + Redis/worker jobs, and true RBAC (free/pro/premium entitlements).
+- Phase 1 (MVP v1: CSV + Core Analytics)
+	- Done: CSV import v1, dashboards v1 (equity curve, symbol breakdown, calendar), trades list/detail.
+	- Remaining: stronger normalization + faster bulk import, richer filters, metrics engine completeness (profit factor/expectancy/max drawdown as a unified engine).
+- Phase 2 (Journal + Playbooks + Weekly Review)
+	- Done: Trade journal editor, playbooks + checklist storage, weekly report generation + UI.
+	- Remaining: quick tagging UX, screenshots end-to-end, richer playbook performance summaries.
+- Phase 3 (Mistake Intelligence v1)
+	- Remaining: rule-based insights with evidence links.
+- Phase 4 (DataLab Builder + SQL Mode)
+	- Remaining: trade-filter builder + safe SELECT-only SQL mode (allowlisted views, LIMIT/timeout, user scoping).
+- Phase 5 (Zerodha Integration)
+	- Done: auth URL + token exchange + encrypted token storage + read-only sync endpoint.
+	- Remaining: incremental sync strategy + background sync jobs + sync health dashboard.
+- Phase 6–10
+	- Remaining: reconciliation/tax utilities, reports/sharing/paywall polish, simulation engine, hardening/observability/scale.
+
+### Important note: legacy migration
+
+- `supabase/migrations/001_DEPRECATED.sql` is intentionally a **NO-OP** so fresh environments do not create legacy “signals” tables.
+
 ## License
 
 Private — all rights reserved.
