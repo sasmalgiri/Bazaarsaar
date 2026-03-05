@@ -1,8 +1,9 @@
-'use client';
-
+import type { Metadata } from 'next';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+
+export const metadata: Metadata = { title: 'Dashboard' };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
