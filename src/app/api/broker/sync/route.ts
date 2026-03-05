@@ -84,11 +84,14 @@ export async function POST() {
       const orders = ordersData.data || [];
       const completedOrders = orders.filter((o: Record<string, string>) => o.status === 'COMPLETE');
 
+      // Batch upsert in chunks of 500
+      const BATCH_SIZE = 500;
       let imported = 0;
       let skipped = 0;
 
-      for (const order of completedOrders) {
-        const { error: upsertError } = await admin.from('trade').upsert({
+      for (let i = 0; i < completedOrders.length; i += BATCH_SIZE) {
+        const chunk = completedOrders.slice(i, i + BATCH_SIZE);
+        const records = chunk.map((order: Record<string, string | number>) => ({
           user_id: user.id,
           broker_connection_id: connection.id,
           import_job_id: importJob!.id,
@@ -103,10 +106,15 @@ export async function POST() {
           status: 'CLOSED',
           traded_at: order.order_timestamp || order.exchange_timestamp,
           import_source: 'zerodha_api',
-        }, { onConflict: 'user_id,broker_order_id' });
+        }));
 
-        if (upsertError) skipped++;
-        else imported++;
+        const { error: upsertError, count } = await admin.from('trade').upsert(records, {
+          onConflict: 'user_id,broker_order_id',
+          count: 'exact',
+        });
+
+        if (upsertError) skipped += chunk.length;
+        else imported += count ?? chunk.length;
       }
 
       // Update import job

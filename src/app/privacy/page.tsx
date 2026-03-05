@@ -34,11 +34,24 @@ export default function PrivacyPage() {
             <li>Improve the Service</li>
           </ul>
           <p className="mt-2">We do NOT sell, rent, or share your personal data with third parties for marketing purposes.</p>
+          <p className="mt-2">
+            We may process data using trusted service providers that help us operate the Service (for example, Supabase for authentication/database and Vercel for hosting/analytics). If you choose to connect a broker, we access your data via that broker&apos;s APIs to sync your trades.
+          </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">3. Data Storage</h2>
           <p>Your data is stored securely on Supabase (PostgreSQL) with Row Level Security (RLS) enabled. All data is encrypted in transit via TLS.</p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">3A. Data Retention</h2>
+          <p>We retain your data for as long as your account is active and as needed to provide the Service. You can export or delete your data at any time from Settings.</p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">3B. International Data Transfers</h2>
+          <p>We may process and store data in countries other than where you live (for example, where our hosting and database providers operate). We take reasonable steps to protect your data during such transfers.</p>
         </section>
 
         <section>
@@ -53,13 +66,13 @@ export default function PrivacyPage() {
             <li>Access your personal data</li>
             <li>Request deletion of your account and data</li>
             <li>Export your data</li>
-            <li>Withdraw consent at any time</li>
+            <li>Withdraw consent by requesting deletion or contacting us</li>
           </ul>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">6. DPDP Act Compliance</h2>
-          <p>BazaarSaar is committed to compliance with the Digital Personal Data Protection Act, 2023 (DPDP Act) of India. We process your data only for the purposes you consent to and provide mechanisms for data access, correction, and deletion.</p>
+          <p>BazaarSaar is committed to compliance with the Digital Personal Data Protection Act, 2023 (DPDP Act) of India.</p>
         </section>
 
         <section>

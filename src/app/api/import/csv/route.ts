@@ -78,17 +78,26 @@ export async function POST(req: Request) {
       started_at: new Date().toISOString(),
     }).select().single();
 
-    let imported = 0;
+    // Build batch — validate dates upfront, separate valid from invalid rows
+    const validRows: typeof rows extends (infer T)[] ? { row: T; tradedAt: Date }[] : never = [];
     let skipped = 0;
 
     for (const row of rows) {
       const tradedAt = new Date(row.traded_at);
       if (isNaN(tradedAt.getTime())) {
         skipped++;
-        continue;
+      } else {
+        validRows.push({ row, tradedAt });
       }
+    }
 
-      const { error } = await admin.from('trade').upsert({
+    // Batch upsert in chunks of 500 for efficient DB writes
+    const BATCH_SIZE = 500;
+    let imported = 0;
+
+    for (let i = 0; i < validRows.length; i += BATCH_SIZE) {
+      const chunk = validRows.slice(i, i + BATCH_SIZE);
+      const records = chunk.map(({ row, tradedAt }) => ({
         user_id: user.id,
         import_job_id: importJob!.id,
         broker_order_id: row.order_id || null,
@@ -102,10 +111,18 @@ export async function POST(req: Request) {
         status: 'CLOSED',
         traded_at: tradedAt.toISOString(),
         import_source: 'csv',
-      }, { onConflict: row.order_id ? 'user_id,broker_order_id' : undefined });
+      }));
 
-      if (error) skipped++;
-      else imported++;
+      const { error, count } = await admin.from('trade').upsert(records, {
+        onConflict: 'user_id,broker_order_id',
+        count: 'exact',
+      });
+
+      if (error) {
+        skipped += chunk.length;
+      } else {
+        imported += count ?? chunk.length;
+      }
     }
 
     // Update import job

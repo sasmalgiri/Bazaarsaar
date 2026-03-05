@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/broker-health",
       "schedule": "30 0 * * *"
+    },
+    {
+      "path": "/api/cron/broker-sync",
+      "schedule": "0 16 * * 1-5"
     }
   ]
 }

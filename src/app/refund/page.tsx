@@ -14,19 +14,20 @@ export default function RefundPage() {
         <p className="text-xs text-[#6b6b8a]">Last updated: March 2026</p>
 
         <section>
-          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">Beta Period</h2>
-          <p>BazaarSaar is currently in beta and is available free of charge. No payments are being collected at this time.</p>
+          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">Subscription Plans</h2>
+          <p>BazaarSaar is a paid subscription service for users in India. Pricing is shown at checkout in INR and may include applicable taxes (such as GST) and promotions.</p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">Future Paid Plans</h2>
-          <p>When paid plans are introduced (planned at &#x20B9;99&ndash;&#x20B9;149/month), we will offer:</p>
+          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">Trials, Cancellation, and Refunds</h2>
+          <p>Unless otherwise stated at checkout, we offer:</p>
           <ul className="list-disc pl-5 mt-2 space-y-1">
-            <li>7-day free trial for all new subscribers</li>
-            <li>Full refund within 7 days of first payment if you are not satisfied</li>
-            <li>No refunds for partial months after the 7-day period</li>
-            <li>Cancel anytime &mdash; no lock-in period</li>
+            <li>A free trial (where available) for new subscribers</li>
+            <li>A full refund within 7 days of the first payment for your first subscription purchase</li>
+            <li>No refunds for partial billing periods after the refund window</li>
+            <li>Cancel anytime; access continues until the end of your current billing period</li>
           </ul>
+          <p className="mt-2">If you purchase through an app store, billing and refunds may be governed by the store&apos;s policies.</p>
         </section>
 
         <section>

@@ -3,15 +3,25 @@
 import { useEffect, useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
-import { BookCheck, Copy, Plus } from 'lucide-react';
+import { BookCheck, Copy, Plus, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import type { UserPlaybook, PlaybookTemplate } from '@/types';
+
+interface PlaybookStat {
+  playbook_id: string;
+  title: string;
+  trade_count: number;
+  win_rate: number;
+  total_pnl: number;
+  avg_checklist_completion: number;
+}
 
 export default function PlaybooksPage() {
   const [myPlaybooks, setMyPlaybooks] = useState<UserPlaybook[]>([]);
   const [templates, setTemplates] = useState<PlaybookTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [cloning, setCloning] = useState<string | null>(null);
+  const [stats, setStats] = useState<PlaybookStat[]>([]);
 
   useEffect(() => {
     async function fetch() {
@@ -25,6 +35,13 @@ export default function PlaybooksPage() {
       setMyPlaybooks((my as unknown as UserPlaybook[]) || []);
       setTemplates((tpl as unknown as PlaybookTemplate[]) || []);
       setLoading(false);
+
+      // Fetch playbook performance stats
+      try {
+        const statsRes = await globalThis.fetch('/api/playbooks/stats');
+        const statsData = await statsRes.json();
+        if (statsData.stats) setStats(statsData.stats);
+      } catch { /* silent */ }
     }
     fetch();
   }, []);
@@ -124,6 +141,58 @@ export default function PlaybooksPage() {
           </div>
         )}
       </div>
+
+      {/* Playbook Performance Analytics */}
+      {stats.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 size={16} className="text-green-500" />
+            <h2 className="text-sm font-semibold text-[#6b6b8a] uppercase tracking-wider">Performance by Playbook</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {stats.map((s) => (
+              <GlassCard key={s.playbook_id} className="p-5">
+                <h3 className="text-sm font-semibold text-[#d4d4e8] mb-3">{s.title}</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <p className="text-[10px] text-[#4a4a6a] uppercase">Trades</p>
+                    <p className="text-lg font-bold font-mono text-[#fafaff]">{s.trade_count}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[#4a4a6a] uppercase">Win Rate</p>
+                    <p className={`text-lg font-bold font-mono ${s.win_rate >= 50 ? 'text-green-500' : 'text-red-500'}`}>
+                      {s.win_rate.toFixed(0)}%
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[#4a4a6a] uppercase">P&L</p>
+                    <p className={`text-lg font-bold font-mono ${s.total_pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {s.total_pnl >= 0 ? '+' : ''}{s.total_pnl.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </p>
+                  </div>
+                </div>
+                {s.avg_checklist_completion > 0 && (
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between text-[10px] text-[#4a4a6a] mb-1">
+                      <span>Checklist completion</span>
+                      <span>{s.avg_checklist_completion.toFixed(0)}%</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-green-500 transition-all"
+                        style={{ width: `${Math.min(100, s.avg_checklist_completion)}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </GlassCard>
+            ))}
+          </div>
+          <p className="text-[10px] text-[#4a4a6a] mt-2">
+            Descriptive performance summary of your own trades. Not investment advice.
+          </p>
+        </div>
+      )}
 
       {/* Template Library */}
       <div>

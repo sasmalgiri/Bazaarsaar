@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: '%s | BazaarSaar',
   },
   description: 'Trade journal, broker sync, and weekly analytics for swing traders, long-term investors, and options traders in the Indian stock market.',
-  keywords: ['Indian stock market', 'trade journal', 'trading journal India', 'Zerodha sync', 'options trading India', 'SEBI compliant', 'market analytics', 'bazaarsaar'],
+  keywords: ['Indian stock market', 'trade journal', 'trading journal India', 'Zerodha sync', 'options trading India', 'no investment advice', 'market analytics', 'bazaarsaar'],
   icons: { icon: '/favicon.svg', shortcut: '/favicon.svg', apple: '/favicon.svg' },
   alternates: { canonical: siteUrl },
   openGraph: {

@@ -52,8 +52,8 @@ export default function Home() {
           />
           <FeatureCard
             icon={<Shield size={24} className="text-purple-500" />}
-            title="SEBI Compliant"
-            description="DPDP Act ready. Your data stays yours — export or delete anytime."
+            title="No Investment Advice"
+            description="Descriptive-only analytics with export/delete controls (DPDP)."
           />
         </div>
       </div>
@@ -63,7 +63,7 @@ export default function Home() {
         <p className="text-[11px] text-[#4a4a6a] max-w-2xl mx-auto mb-3">
           BazaarSaar is a journaling and analytics tool — not a trading platform.
           We do not provide investment advice, tips, or recommendations.
-          Subject to market risks. Read all scheme-related documents carefully.
+          Subject to market risks.
         </p>
         <div className="flex items-center justify-center gap-4">
           <Link href="/terms" className="text-[11px] text-[#4a4a6a] hover:text-[#6b6b8a] no-underline">Terms</Link>

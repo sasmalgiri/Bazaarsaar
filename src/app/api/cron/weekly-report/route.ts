@@ -70,8 +70,83 @@ export async function GET(req: Request) {
       const topSymbols = Object.entries(symbolCounts).sort(([, a], [, b]) => b - a).slice(0, 5).map(([sym]) => sym);
 
       const tradeIds = trades.map((t: { id: string }) => t.id);
-      const { data: journals } = await admin.from('journal_entry').select('trade_id').eq('user_id', userId).in('trade_id', tradeIds);
+      const { data: journals } = await admin.from('journal_entry').select('trade_id, emotion').eq('user_id', userId).in('trade_id', tradeIds);
       const journalFillRate = trades.length > 0 ? ((journals?.length || 0) / trades.length) * 100 : 0;
+
+      // Emotion distribution from journal entries
+      const emotionDist: Record<string, number> = {};
+      journals?.forEach((j: { emotion?: string }) => {
+        if (j.emotion) emotionDist[j.emotion] = (emotionDist[j.emotion] || 0) + 1;
+      });
+
+      // Enhanced metrics: profit factor, expectancy, max drawdown
+      const grossWins = wins.reduce((s: number, t: { net_pnl?: number; pnl?: number }) => s + Math.abs(t.net_pnl || t.pnl || 0), 0);
+      const grossLosses = losses.reduce((s: number, t: { net_pnl?: number; pnl?: number }) => s + Math.abs(t.net_pnl || t.pnl || 0), 0);
+      const profitFactor = grossLosses > 0 ? grossWins / grossLosses : grossWins > 0 ? Infinity : 0;
+
+      const winRate = trades.length > 0 ? wins.length / trades.length : 0;
+      const lossRate = 1 - winRate;
+      const expectancy = (winRate * avgWin) - (lossRate * Math.abs(avgLoss));
+
+      // Max drawdown: peak-to-trough on cumulative P&L
+      let peak = 0;
+      let cumPnl = 0;
+      let maxDrawdown = 0;
+      const sortedTrades = [...trades].sort((a: { traded_at: string }, b: { traded_at: string }) =>
+        new Date(a.traded_at).getTime() - new Date(b.traded_at).getTime()
+      );
+      for (const t of sortedTrades) {
+        cumPnl += ((t as { net_pnl?: number; pnl?: number }).net_pnl || (t as { pnl?: number }).pnl || 0);
+        if (cumPnl > peak) peak = cumPnl;
+        const dd = peak - cumPnl;
+        if (dd > maxDrawdown) maxDrawdown = dd;
+      }
+      const maxDrawdownPct = peak > 0 ? (maxDrawdown / peak) * 100 : 0;
+
+      // Playbook adherence
+      const { data: journalsWithPlaybook } = await admin
+        .from('journal_entry')
+        .select('id, playbook_id')
+        .eq('user_id', userId)
+        .in('trade_id', tradeIds)
+        .not('playbook_id', 'is', null);
+
+      const playbookUsedCount = journalsWithPlaybook?.length || 0;
+      let avgChecklistCompletion = 0;
+      const topMissedSteps: string[] = [];
+
+      if (playbookUsedCount > 0) {
+        const journalIds = journalsWithPlaybook!.map((j: { id: string }) => j.id);
+        const { data: checks } = await admin
+          .from('journal_check')
+          .select('journal_entry_id, step_id, checked')
+          .in('journal_entry_id', journalIds);
+
+        if (checks && checks.length > 0) {
+          const byJournal: Record<string, { total: number; checked: number }> = {};
+          const missedCounts: Record<string, number> = {};
+          for (const c of checks as { journal_entry_id: string; step_id: string; checked: boolean }[]) {
+            if (!byJournal[c.journal_entry_id]) byJournal[c.journal_entry_id] = { total: 0, checked: 0 };
+            byJournal[c.journal_entry_id].total++;
+            if (c.checked) byJournal[c.journal_entry_id].checked++;
+            else missedCounts[c.step_id] = (missedCounts[c.step_id] || 0) + 1;
+          }
+          const rates = Object.values(byJournal).map((v) => v.total > 0 ? (v.checked / v.total) * 100 : 0);
+          avgChecklistCompletion = rates.reduce((a, b) => a + b, 0) / rates.length;
+
+          // Top 3 missed step IDs → resolve names
+          const topMissedIds = Object.entries(missedCounts).sort(([, a], [, b]) => b - a).slice(0, 3).map(([id]) => id);
+          if (topMissedIds.length > 0) {
+            const { data: stepTexts } = await admin.from('user_playbook_step').select('id, step_text').in('id', topMissedIds);
+            if (stepTexts) {
+              for (const id of topMissedIds) {
+                const step = stepTexts.find((s: { id: string }) => s.id === id);
+                if (step) topMissedSteps.push((step as { step_text: string }).step_text);
+              }
+            }
+          }
+        }
+      }
 
       await admin.from('weekly_report').upsert({
         user_id: userId,
@@ -88,7 +163,14 @@ export async function GET(req: Request) {
         largest_loss: largestLoss,
         journal_fill_rate: journalFillRate,
         top_symbols: topSymbols,
-        emotion_distribution: {},
+        emotion_distribution: emotionDist,
+        playbook_used_count: playbookUsedCount,
+        avg_checklist_completion: avgChecklistCompletion,
+        top_missed_steps: topMissedSteps,
+        profit_factor: profitFactor === Infinity ? 999 : profitFactor,
+        expectancy: expectancy,
+        max_drawdown: maxDrawdown,
+        max_drawdown_pct: maxDrawdownPct,
         generated_at: new Date().toISOString(),
       }, { onConflict: 'user_id,week_start' });
 

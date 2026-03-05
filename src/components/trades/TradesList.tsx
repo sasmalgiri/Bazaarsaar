@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
 import { SEBIDisclaimer } from '@/components/ui/SEBIDisclaimer';
-import { BookOpen, Search, Download, FileSpreadsheet } from 'lucide-react';
+import { BookOpen, Search, Download, FileSpreadsheet, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { generateTradeExcel, generateTradeCSV } from '@/lib/tradeExport';
 import Link from 'next/link';
-import type { Trade } from '@/types';
+import type { Trade, TradeSide } from '@/types';
 
 export function TradesList() {
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -15,6 +15,15 @@ export function TradesList() {
   const [filter, setFilter] = useState('');
   const [journalStatus, setJournalStatus] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
+
+  // Advanced filters
+  const [showFilters, setShowFilters] = useState(false);
+  const [sideFilter, setSideFilter] = useState<TradeSide | ''>('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [journalFilter, setJournalFilter] = useState<'all' | 'done' | 'missing'>('all');
+  const [sortField, setSortField] = useState<'traded_at' | 'symbol' | 'price' | 'quantity'>('traded_at');
+  const [sortAsc, setSortAsc] = useState(false);
 
   useEffect(() => {
     async function fetchTrades() {
@@ -48,9 +57,22 @@ export function TradesList() {
     fetchTrades();
   }, []);
 
-  const filtered = trades.filter(t =>
-    t.symbol.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filtered = trades
+    .filter((t) => {
+      if (filter && !t.symbol.toLowerCase().includes(filter.toLowerCase())) return false;
+      if (sideFilter && t.side !== sideFilter) return false;
+      if (dateFrom && t.traded_at < dateFrom) return false;
+      if (dateTo && t.traded_at > dateTo + 'T23:59:59') return false;
+      if (journalFilter === 'done' && !journalStatus[t.id]) return false;
+      if (journalFilter === 'missing' && journalStatus[t.id]) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
+      const cmp = typeof aVal === 'string' ? aVal.localeCompare(bVal as string) : (aVal as number) - (bVal as number);
+      return sortAsc ? cmp : -cmp;
+    });
 
   if (loading) {
     return (
@@ -136,7 +158,79 @@ export function TradesList() {
           <Download size={14} />
           CSV
         </button>
+        <button
+          type="button"
+          onClick={() => setShowFilters(!showFilters)}
+          className={`flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-xs border cursor-pointer transition-colors whitespace-nowrap ${
+            showFilters ? 'text-green-500 bg-green-500/10 border-green-500/20' : 'text-[#d4d4e8] bg-white/[0.06] border-white/[0.08] hover:bg-white/[0.1]'
+          }`}
+        >
+          <Filter size={14} />
+          Filters
+        </button>
       </div>
+
+      {/* Advanced Filters */}
+      {showFilters && (
+        <GlassCard className="p-4">
+          <div className="flex flex-wrap gap-3 items-end">
+            <div>
+              <label className="block text-[10px] text-[#6b6b8a] uppercase mb-1">Side</label>
+              <select
+                value={sideFilter}
+                onChange={(e) => setSideFilter(e.target.value as TradeSide | '')}
+                aria-label="Filter by side"
+                className="px-3 py-2 rounded-lg bg-[#11111a] border border-white/[0.06] text-xs text-[#d4d4e8] outline-none cursor-pointer"
+              >
+                <option value="">All</option>
+                <option value="BUY">BUY</option>
+                <option value="SELL">SELL</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] text-[#6b6b8a] uppercase mb-1">From</label>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                title="Filter from date"
+                className="px-3 py-2 rounded-lg bg-[#11111a] border border-white/[0.06] text-xs text-[#d4d4e8] outline-none cursor-pointer"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-[#6b6b8a] uppercase mb-1">To</label>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                title="Filter to date"
+                className="px-3 py-2 rounded-lg bg-[#11111a] border border-white/[0.06] text-xs text-[#d4d4e8] outline-none cursor-pointer"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-[#6b6b8a] uppercase mb-1">Journal</label>
+              <select
+                value={journalFilter}
+                onChange={(e) => setJournalFilter(e.target.value as 'all' | 'done' | 'missing')}
+                aria-label="Filter by journal status"
+                className="px-3 py-2 rounded-lg bg-[#11111a] border border-white/[0.06] text-xs text-[#d4d4e8] outline-none cursor-pointer"
+              >
+                <option value="all">All</option>
+                <option value="done">Done</option>
+                <option value="missing">Missing</option>
+              </select>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setSideFilter(''); setDateFrom(''); setDateTo(''); setJournalFilter('all'); setFilter(''); }}
+              className="px-3 py-2 rounded-lg text-xs text-[#6b6b8a] bg-transparent border border-white/[0.06] cursor-pointer hover:bg-white/[0.04] transition-colors"
+            >
+              Clear
+            </button>
+          </div>
+          <p className="text-[10px] text-[#4a4a6a] mt-2">{filtered.length} of {trades.length} trades</p>
+        </GlassCard>
+      )}
 
       {/* Table */}
       <GlassCard className="overflow-hidden">
@@ -144,12 +238,30 @@ export function TradesList() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06]">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b6b8a] uppercase">Symbol</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b6b8a] uppercase">Side</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-[#6b6b8a] uppercase">Qty</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-[#6b6b8a] uppercase">Price</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-[#6b6b8a] uppercase">Date</th>
-                <th className="text-center px-4 py-3 text-xs font-semibold text-[#6b6b8a] uppercase">Journal</th>
+                {([
+                  { key: 'symbol', label: 'Symbol', align: 'text-left' },
+                  { key: '', label: 'Side', align: 'text-left' },
+                  { key: 'quantity', label: 'Qty', align: 'text-right' },
+                  { key: 'price', label: 'Price', align: 'text-right' },
+                  { key: 'traded_at', label: 'Date', align: 'text-left' },
+                  { key: '', label: 'Journal', align: 'text-center' },
+                ] as const).map((col) => (
+                  <th
+                    key={col.label}
+                    className={`${col.align} px-4 py-3 text-xs font-semibold text-[#6b6b8a] uppercase ${col.key ? 'cursor-pointer hover:text-[#b0b0c8] select-none' : ''}`}
+                    onClick={() => {
+                      if (!col.key) return;
+                      const field = col.key as typeof sortField;
+                      if (sortField === field) setSortAsc(!sortAsc);
+                      else { setSortField(field); setSortAsc(true); }
+                    }}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {col.label}
+                      {col.key && sortField === col.key && (sortAsc ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}
+                    </span>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>

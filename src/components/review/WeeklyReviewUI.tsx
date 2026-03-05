@@ -106,6 +106,41 @@ export function WeeklyReviewUI() {
         </GlassCard>
       </div>
 
+      {/* Enhanced Metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <GlassCard className="p-4 text-center">
+          <p className="text-xs text-[#6b6b8a] mb-1">Profit Factor</p>
+          <p className={`text-xl font-bold font-mono ${(report.profit_factor ?? 0) >= 1 ? 'text-green-500' : 'text-red-500'}`}>
+            {(report.profit_factor ?? 0) >= 999 ? '∞' : (report.profit_factor ?? 0).toFixed(2)}
+          </p>
+          <p className="text-[10px] text-[#4a4a6a]">gross wins / losses</p>
+        </GlassCard>
+
+        <GlassCard className="p-4 text-center">
+          <p className="text-xs text-[#6b6b8a] mb-1">Expectancy</p>
+          <p className={`text-xl font-bold font-mono ${(report.expectancy ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {(report.expectancy ?? 0) >= 0 ? '+' : ''}{Number(report.expectancy ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+          </p>
+          <p className="text-[10px] text-[#4a4a6a]">avg per trade</p>
+        </GlassCard>
+
+        <GlassCard className="p-4 text-center">
+          <p className="text-xs text-[#6b6b8a] mb-1">Max Drawdown</p>
+          <p className="text-xl font-bold font-mono text-red-500">
+            {Number(report.max_drawdown ?? 0) > 0 ? '-' : ''}{Number(report.max_drawdown ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+          </p>
+          <p className="text-[10px] text-[#4a4a6a]">{Number(report.max_drawdown_pct ?? 0).toFixed(1)}% of peak</p>
+        </GlassCard>
+
+        <GlassCard className="p-4 text-center">
+          <p className="text-xs text-[#6b6b8a] mb-1">Win/Loss Ratio</p>
+          <p className="text-xl font-bold font-mono text-[#fafaff]">
+            {Number(report.avg_loss) !== 0 ? (Math.abs(Number(report.avg_win)) / Math.abs(Number(report.avg_loss))).toFixed(2) : '—'}
+          </p>
+          <p className="text-[10px] text-[#4a4a6a]">avg win / avg loss</p>
+        </GlassCard>
+      </div>
+
       {/* Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <GlassCard className="p-5">

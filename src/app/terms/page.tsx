@@ -55,7 +55,18 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">9. Governing Law</h2>
+          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">9. Paid Plans, Billing, and Cancellation</h2>
+          <p>If you subscribe to a paid plan, you agree to pay the fees presented at checkout (including any applicable taxes). Subscriptions typically renew automatically until cancelled.</p>
+          <p className="mt-2">You can cancel at any time; cancellation takes effect at the end of your current billing period unless stated otherwise at checkout.</p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">10. Refunds</h2>
+          <p>Refund eligibility (if any) depends on the plan and the region where you purchase. Please refer to our Refund Policy for the current terms.</p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">11. Governing Law</h2>
           <p>These Terms shall be governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in India.</p>
         </section>
 

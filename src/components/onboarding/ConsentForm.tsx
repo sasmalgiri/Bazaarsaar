@@ -97,7 +97,8 @@ export function ConsentForm() {
           <p className="text-[11px] text-[#4a4a6a] leading-relaxed">
             By proceeding, you acknowledge that BazaarSaar is not a SEBI-registered investment advisor.
             All analytics are descriptive. We never recommend trades. Your data is never shared with third parties.
-            You may withdraw consent and request deletion at any time under DPDP Act, 2023.
+            We do not sell your personal data or share it for marketing; we use service providers to operate the app (e.g., hosting/analytics/broker integrations you enable).
+            You may request deletion at any time, and you can withdraw consent by requesting deletion or contacting us under DPDP Act, 2023.
           </p>
         </div>
 

@@ -98,6 +98,12 @@ export interface WeeklyReport {
   playbook_used_count?: number;
   avg_checklist_completion?: number;
   top_missed_steps?: string[];
+  // Enhanced metrics
+  profit_factor?: number;       // gross wins / gross losses
+  expectancy?: number;          // (winRate * avgWin) - (lossRate * avgLoss)
+  max_drawdown?: number;        // worst peak-to-trough
+  max_drawdown_pct?: number;    // max drawdown as percentage
+  avg_holding_time_mins?: number;
   generated_at: string;
 }
 

@@ -40,7 +40,7 @@ export default function DisclaimerPage() {
 
         <section>
           <h2 className="text-lg font-semibold text-[#d4d4e8] mb-3">Data Sources</h2>
-          <p>Market data is sourced from publicly available third-party sources including Yahoo Finance and NSE. BazaarSaar does not guarantee the accuracy, completeness, or timeliness of data. Data may be delayed.</p>
+          <p>Market data is sourced from publicly available third-party sources (for example, Yahoo Finance). BazaarSaar does not guarantee the accuracy, completeness, or timeliness of data. Data may be delayed.</p>
         </section>
 
         <section>

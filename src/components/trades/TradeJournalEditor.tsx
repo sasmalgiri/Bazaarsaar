@@ -1,11 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
 import { SEBIDisclaimer } from '@/components/ui/SEBIDisclaimer';
-import { BookOpen, Save, Star, BookCheck } from 'lucide-react';
+import { BookOpen, Save, Star, BookCheck, ImagePlus, X, Loader2 } from 'lucide-react';
 import type { EmotionTag, UserPlaybook, UserPlaybookStep } from '@/types';
+
+interface Attachment {
+  id: string;
+  url: string;
+  file_name: string;
+}
 
 const EMOTIONS: { value: EmotionTag; label: string; emoji: string }[] = [
   { value: 'confident', label: 'Confident', emoji: '\uD83D\uDE0E' },
@@ -31,6 +37,15 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
   const [saved, setSaved] = useState(false);
   const [existingId, setExistingId] = useState<string | null>(null);
 
+  // Tags
+  const [availableTags, setAvailableTags] = useState<{ id: string; label: string; color: string }[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [newTagLabel, setNewTagLabel] = useState('');
+
+  // Attachments
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [uploading, setUploading] = useState(false);
+
   // Playbook + checklist state
   const [playbooks, setPlaybooks] = useState<UserPlaybook[]>([]);
   const [selectedPlaybookId, setSelectedPlaybookId] = useState<string>('');
@@ -43,13 +58,15 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Fetch journal entry + user playbooks in parallel
-      const [{ data: journal }, { data: userPlaybooks }] = await Promise.all([
+      // Fetch journal entry + user playbooks + tags in parallel
+      const [{ data: journal }, { data: userPlaybooks }, { data: tags }] = await Promise.all([
         supabase.from('journal_entry').select('*').eq('user_id', user.id).eq('trade_id', tradeId).single(),
         supabase.from('user_playbook').select('*').eq('user_id', user.id).order('title'),
+        supabase.from('tag_def').select('id, label, color').eq('user_id', user.id).order('label'),
       ]);
 
       if (userPlaybooks) setPlaybooks(userPlaybooks as unknown as UserPlaybook[]);
+      if (tags) setAvailableTags(tags as { id: string; label: string; color: string }[]);
 
       if (journal) {
         setExistingId(journal.id);
@@ -59,6 +76,13 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
         setChecklistFollowed(journal.checklist_followed || false);
         setNotes(journal.notes || '');
         setRating(journal.rating || 0);
+
+        // Load existing tags for this journal entry
+        const { data: entryTags } = await supabase
+          .from('journal_entry_tag')
+          .select('tag_id')
+          .eq('journal_entry_id', journal.id);
+        if (entryTags) setSelectedTagIds(entryTags.map((t: { tag_id: string }) => t.tag_id));
 
         if (journal.playbook_id) {
           setSelectedPlaybookId(journal.playbook_id);
@@ -79,6 +103,46 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
     fetchJournal();
   }, [tradeId]);
 
+  // Fetch attachments when journal entry is loaded
+  const fetchAttachments = useCallback(async (journalId: string) => {
+    try {
+      const res = await fetch(`/api/attachment?journal_entry_id=${journalId}`);
+      const data = await res.json();
+      if (data.attachments) setAttachments(data.attachments);
+    } catch { /* silent */ }
+  }, []);
+
+  useEffect(() => {
+    if (existingId) fetchAttachments(existingId);
+  }, [existingId, fetchAttachments]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !existingId) return;
+
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('journal_entry_id', existingId);
+
+      const res = await fetch('/api/attachment', { method: 'POST', body: form });
+      const data = await res.json();
+
+      if (data.id) {
+        setAttachments((prev) => [...prev, { id: data.id, url: data.url, file_name: data.file_name }]);
+      }
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleDeleteAttachment = async (id: string) => {
+    await fetch(`/api/attachment?id=${id}`, { method: 'DELETE' });
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  };
+
   // When playbook selection changes, load its steps
   const handlePlaybookChange = async (playbookId: string) => {
     setSelectedPlaybookId(playbookId);
@@ -93,6 +157,33 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
 
   const toggleStep = (stepId: string) => {
     setCheckedSteps((prev) => ({ ...prev, [stepId]: !prev[stepId] }));
+  };
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+    );
+  };
+
+  const handleCreateTag = async () => {
+    const label = newTagLabel.trim();
+    if (!label) return;
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase.from('tag_def').insert({
+      user_id: user.id,
+      tag_type: 'custom',
+      label,
+      color: '#22c55e',
+    }).select('id, label, color').single();
+
+    if (data) {
+      setAvailableTags((prev) => [...prev, data as { id: string; label: string; color: string }]);
+      setSelectedTagIds((prev) => [...prev, data.id]);
+      setNewTagLabel('');
+    }
   };
 
   const handleSave = async () => {
@@ -137,6 +228,18 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
         updated_at: new Date().toISOString(),
       }));
       await supabase.from('journal_check').upsert(checks, { onConflict: 'journal_entry_id,step_id' });
+    }
+
+    // Save tags — delete existing and re-insert
+    if (journalId) {
+      await supabase.from('journal_entry_tag').delete().eq('journal_entry_id', journalId);
+      if (selectedTagIds.length > 0) {
+        const tagRows = selectedTagIds.map((tagId) => ({
+          journal_entry_id: journalId,
+          tag_id: tagId,
+        }));
+        await supabase.from('journal_entry_tag').insert(tagRows);
+      }
     }
 
     setSaving(false);
@@ -200,6 +303,47 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
                 {em.label}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Tags */}
+        <div>
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
+            Tags
+          </label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {availableTags.map((tag) => (
+              <button
+                key={tag.id}
+                type="button"
+                onClick={() => toggleTag(tag.id)}
+                className={`px-2.5 py-1.5 rounded-lg text-xs border cursor-pointer transition-all ${
+                  selectedTagIds.includes(tag.id)
+                    ? 'border-green-500/40 bg-green-500/10 text-green-500'
+                    : 'border-white/[0.06] bg-[#11111a] text-[#6b6b8a] hover:bg-white/[0.04]'
+                }`}
+              >
+                {tag.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newTagLabel}
+              onChange={(e) => setNewTagLabel(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreateTag()}
+              placeholder="New tag..."
+              className="flex-1 px-3 py-1.5 rounded-lg bg-[#11111a] border border-white/[0.06] text-xs text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-green-500/30"
+            />
+            <button
+              type="button"
+              onClick={handleCreateTag}
+              disabled={!newTagLabel.trim()}
+              className="px-3 py-1.5 rounded-lg text-xs text-green-500 border border-green-500/20 bg-transparent cursor-pointer hover:bg-green-500/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Add
+            </button>
           </div>
         </div>
 
@@ -280,6 +424,7 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
               <button
                 key={star}
                 type="button"
+                title={`Rate ${star} star${star > 1 ? 's' : ''}`}
                 onClick={() => setRating(rating === star ? 0 : star)}
                 className="bg-transparent border-none cursor-pointer p-1 transition-transform hover:scale-110"
               >
@@ -305,9 +450,49 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
           />
         </div>
 
+        {/* Screenshots */}
+        <div>
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
+            Screenshots
+          </label>
+
+          {attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {attachments.map((a) => (
+                <div key={a.id} className="relative group">
+                  <img
+                    src={a.url}
+                    alt={a.file_name}
+                    className="w-20 h-20 rounded-lg object-cover border border-white/[0.06]"
+                  />
+                  <button
+                    type="button"
+                    title="Remove screenshot"
+                    onClick={() => handleDeleteAttachment(a.id)}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 border-none cursor-pointer flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={10} className="text-white" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {existingId ? (
+            <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs border border-white/[0.06] bg-[#11111a] text-[#6b6b8a] hover:bg-white/[0.04] cursor-pointer transition-colors">
+              {uploading ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />}
+              {uploading ? 'Uploading...' : 'Add Screenshot'}
+              <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" disabled={uploading} />
+            </label>
+          ) : (
+            <p className="text-[10px] text-[#4a4a6a]">Save journal first to attach screenshots.</p>
+          )}
+        </div>
+
         {/* Save */}
         <div className="flex items-center gap-3 pt-2">
           <button
+            type="button"
             onClick={handleSave}
             disabled={saving}
             className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-[#0d0d14] bg-green-500 border-none cursor-pointer hover:bg-green-400 transition-colors disabled:opacity-50"
