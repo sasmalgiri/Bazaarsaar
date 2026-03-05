@@ -12,7 +12,22 @@ export function ConsentForm() {
 
   const allChecked = dataStorage && brokerSync && analytics;
 
-  const handleContinue = () => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleContinue = async () => {
+    setSubmitting(true);
+    try {
+      // Log consent server-side to consent_log table
+      await fetch('/api/user/consent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          purposes: ['data_storage', 'broker_sync', 'descriptive_analytics'],
+        }),
+      });
+    } catch {
+      // Continue even if logging fails — consent is still given client-side
+    }
     setDpdpConsent(true);
     setOnboardingStep(4);
   };
@@ -97,10 +112,10 @@ export function ConsentForm() {
           <button
             type="button"
             onClick={handleContinue}
-            disabled={!allChecked}
+            disabled={!allChecked || submitting}
             className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#0d0d14] bg-green-500 border-none cursor-pointer hover:bg-green-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            I Consent & Continue
+            {submitting ? 'Saving...' : 'I Consent & Continue'}
           </button>
         </div>
       </GlassCard>
