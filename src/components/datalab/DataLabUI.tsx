@@ -239,7 +239,7 @@ export function DataLabUI() {
 
       const { data: trades, error } = await supabase
         .from('trade')
-        .select('traded_at, exit_price, entry_price, net_pnl, pnl, symbol')
+        .select('traded_at, price, net_pnl, pnl, symbol')
         .eq('user_id', user.id)
         .order('traded_at', { ascending: true });
 
@@ -257,7 +257,7 @@ export function DataLabUI() {
 
       // Build cumulative P&L curve
       let cumPnl = 0;
-      const rows: DataRow[] = trades.map((t: { traded_at?: string; exit_price?: number; entry_price?: number; net_pnl?: number; pnl?: number; symbol?: string }) => {
+      const rows: DataRow[] = trades.map((t: { traded_at?: string; price?: number; net_pnl?: number; pnl?: number; symbol?: string }) => {
         const pnl = t.net_pnl || t.pnl || 0;
         cumPnl += pnl;
         return {

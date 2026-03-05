@@ -9,8 +9,7 @@ interface Trade {
   id: string;
   symbol: string;
   side?: string;
-  entry_price?: number;
-  exit_price?: number;
+  price?: number;
   quantity?: number;
   net_pnl?: number;
   pnl?: number;
@@ -51,8 +50,7 @@ export function RecentTradesTable({ trades }: RecentTradesTableProps) {
                 <th className="text-left text-[10px] text-[#4a4a6a] uppercase tracking-wider pb-2 font-medium">Symbol</th>
                 <th className="text-left text-[10px] text-[#4a4a6a] uppercase tracking-wider pb-2 font-medium">Side</th>
                 <th className="text-right text-[10px] text-[#4a4a6a] uppercase tracking-wider pb-2 font-medium">Qty</th>
-                <th className="text-right text-[10px] text-[#4a4a6a] uppercase tracking-wider pb-2 font-medium">Entry</th>
-                <th className="text-right text-[10px] text-[#4a4a6a] uppercase tracking-wider pb-2 font-medium">Exit</th>
+                <th className="text-right text-[10px] text-[#4a4a6a] uppercase tracking-wider pb-2 font-medium">Price</th>
                 <th className="text-right text-[10px] text-[#4a4a6a] uppercase tracking-wider pb-2 font-medium">P&L</th>
                 <th className="text-right text-[10px] text-[#4a4a6a] uppercase tracking-wider pb-2 font-medium">Date</th>
               </tr>
@@ -72,10 +70,7 @@ export function RecentTradesTable({ trades }: RecentTradesTableProps) {
                     </td>
                     <td className="py-2.5 text-right text-[#6b6b8a]">{t.quantity || '--'}</td>
                     <td className="py-2.5 text-right text-[#6b6b8a]">
-                      {t.entry_price ? formatINR(t.entry_price) : '--'}
-                    </td>
-                    <td className="py-2.5 text-right text-[#6b6b8a]">
-                      {t.exit_price ? formatINR(t.exit_price) : '--'}
+                      {t.price ? formatINR(t.price) : '--'}
                     </td>
                     <td className={`py-2.5 text-right font-medium ${pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                       {pnl >= 0 ? '+' : ''}{formatINR(pnl)}

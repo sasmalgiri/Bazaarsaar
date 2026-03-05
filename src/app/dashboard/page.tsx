@@ -20,8 +20,7 @@ interface Trade {
   id: string;
   symbol: string;
   side?: string;
-  entry_price?: number;
-  exit_price?: number;
+  price?: number;
   quantity?: number;
   net_pnl?: number;
   pnl?: number;
@@ -31,7 +30,7 @@ interface Trade {
 interface BrokerConnection {
   status: string;
   broker: string;
-  last_synced_at?: string;
+  last_sync_at?: string;
 }
 
 export default function DashboardPage() {
@@ -60,12 +59,12 @@ export default function DashboardPage() {
       const [{ data: tradeData }, { data: brokerData }] = await Promise.all([
         supabase
           .from('trade')
-          .select('id, symbol, side, entry_price, exit_price, quantity, net_pnl, pnl, traded_at')
+          .select('id, symbol, side, price, quantity, net_pnl, pnl, traded_at')
           .eq('user_id', user.id)
           .order('traded_at', { ascending: true }),
         supabase
           .from('broker_connection')
-          .select('status, broker, last_synced_at')
+          .select('status, broker, last_sync_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
@@ -204,9 +203,9 @@ export default function DashboardPage() {
                   <div className="w-2 h-2 rounded-full bg-green-500 live-dot" />
                   <span className="text-sm text-green-500 font-medium">Connected — {broker.broker}</span>
                 </div>
-                {broker.last_synced_at && (
+                {broker.last_sync_at && (
                   <p className="text-[10px] text-[#4a4a6a]">
-                    Last synced: {new Date(broker.last_synced_at).toLocaleString('en-IN')}
+                    Last synced: {new Date(broker.last_sync_at).toLocaleString('en-IN')}
                   </p>
                 )}
               </div>

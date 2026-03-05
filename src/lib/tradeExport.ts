@@ -5,8 +5,7 @@ import { formatINR } from '@/lib/marketTime';
 interface ExportTrade {
   symbol: string;
   side?: string;
-  entry_price?: number;
-  exit_price?: number;
+  price?: number;
   quantity?: number;
   pnl?: number;
   net_pnl?: number;
@@ -26,8 +25,7 @@ const TRADE_COLUMNS = [
   { key: 'symbol', header: 'Symbol', width: 16 },
   { key: 'side', header: 'Side', width: 8 },
   { key: 'quantity', header: 'Qty', width: 10 },
-  { key: 'entry_price', header: 'Entry Price', width: 14, format: 'currency' },
-  { key: 'exit_price', header: 'Exit Price', width: 14, format: 'currency' },
+  { key: 'price', header: 'Price', width: 14, format: 'currency' },
   { key: 'pnl', header: 'Gross P&L', width: 14, format: 'currency' },
   { key: 'net_pnl', header: 'Net P&L', width: 14, format: 'currency' },
   { key: 'traded_at', header: 'Date', width: 20, format: 'date' },
