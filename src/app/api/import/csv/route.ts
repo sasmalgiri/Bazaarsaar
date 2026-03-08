@@ -13,34 +13,101 @@ interface CSVRow {
   order_id?: string;
 }
 
-function parseCSV(text: string): CSVRow[] {
-  const lines = text.trim().split('\n');
-  if (lines.length < 2) return [];
+type BrokerFormat = 'zerodha' | 'groww' | 'angelone' | 'upstox' | 'auto';
 
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
+function detectBrokerFormat(headers: string[]): BrokerFormat {
+  const h = headers.join(',').toLowerCase();
+  if (h.includes('tradingsymbol') && h.includes('order_timestamp')) return 'zerodha';
+  if (h.includes('stock_name') || h.includes('scrip_name')) return 'groww';
+  if (h.includes('script') || (h.includes('trade_no') && h.includes('segment'))) return 'angelone';
+  if (h.includes('trading_symbol') && h.includes('exchange_timestamp')) return 'upstox';
+  return 'auto';
+}
+
+function parseCSV(text: string): { rows: CSVRow[]; detectedBroker: BrokerFormat } {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return { rows: [], detectedBroker: 'auto' };
+
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/\s+/g, '_').replace(/['"]/g, ''));
+  const detectedBroker = detectBrokerFormat(headers);
   const rows: CSVRow[] = [];
 
   for (let i = 1; i < lines.length; i++) {
+    // Handle CSV fields that may contain commas within quotes
     const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
     const row: Record<string, string> = {};
     headers.forEach((h, idx) => {
       row[h] = values[idx] || '';
     });
 
-    const symbol = row['tradingsymbol'] || row['symbol'] || row['instrument'] || '';
-    const exchange = row['exchange'] || 'NSE';
-    const side = (row['transaction_type'] || row['side'] || row['buy/sell'] || '').toUpperCase();
-    const quantity = row['quantity'] || row['qty'] || '0';
-    const price = row['average_price'] || row['price'] || row['rate'] || '0';
-    const orderType = row['order_type'] || 'MARKET';
-    const tradedAt = row['order_timestamp'] || row['traded_at'] || row['trade_date'] || row['date'] || '';
-    const orderId = row['order_id'] || row['order_no'] || '';
+    let symbol = '';
+    let exchange = '';
+    let side = '';
+    let quantity = '';
+    let price = '';
+    let orderType = '';
+    let tradedAt = '';
+    let orderId = '';
+
+    switch (detectedBroker) {
+      case 'groww':
+        // Groww CSV: stock_name/scrip_name, exchange, type/transaction_type, quantity/qty, price/avg_price, order_date/trade_date
+        symbol = row['stock_name'] || row['scrip_name'] || row['symbol'] || '';
+        exchange = row['exchange'] || 'NSE';
+        side = (row['type'] || row['transaction_type'] || row['buy/sell'] || '').toUpperCase();
+        quantity = row['quantity'] || row['qty'] || row['traded_qty'] || '0';
+        price = row['price'] || row['avg_price'] || row['average_price'] || '0';
+        orderType = 'MARKET';
+        tradedAt = row['order_date'] || row['trade_date'] || row['date'] || '';
+        orderId = row['order_id'] || row['order_no'] || '';
+        break;
+
+      case 'angelone':
+        // Angel One CSV: script/trade_symbol, exchange, buy_sell/type, quantity, price/rate, trade_date/order_date
+        symbol = row['script'] || row['trade_symbol'] || row['scrip'] || row['symbol'] || '';
+        exchange = row['exchange'] || row['exch'] || 'NSE';
+        side = (row['buy_sell'] || row['buy/sell'] || row['type'] || row['transaction_type'] || '').toUpperCase();
+        quantity = row['quantity'] || row['qty'] || row['trade_qty'] || '0';
+        price = row['price'] || row['rate'] || row['avg_price'] || '0';
+        orderType = row['order_type'] || 'MARKET';
+        tradedAt = row['trade_date'] || row['order_date'] || row['date'] || '';
+        orderId = row['trade_no'] || row['order_no'] || row['order_id'] || '';
+        break;
+
+      case 'upstox':
+        // Upstox CSV: trading_symbol, exchange, transaction_type, quantity, price, exchange_timestamp
+        symbol = row['trading_symbol'] || row['tradingsymbol'] || row['symbol'] || '';
+        exchange = row['exchange'] || 'NSE';
+        side = (row['transaction_type'] || row['type'] || row['side'] || '').toUpperCase();
+        quantity = row['quantity'] || row['qty'] || row['traded_quantity'] || '0';
+        price = row['price'] || row['average_price'] || row['avg_price'] || '0';
+        orderType = row['order_type'] || row['product'] || 'MARKET';
+        tradedAt = row['exchange_timestamp'] || row['order_timestamp'] || row['trade_date'] || '';
+        orderId = row['order_id'] || row['order_ref_id'] || '';
+        break;
+
+      default:
+        // Zerodha or auto-detect: flexible column mapping
+        symbol = row['tradingsymbol'] || row['symbol'] || row['instrument'] || '';
+        exchange = row['exchange'] || 'NSE';
+        side = (row['transaction_type'] || row['side'] || row['buy/sell'] || '').toUpperCase();
+        quantity = row['quantity'] || row['qty'] || '0';
+        price = row['average_price'] || row['price'] || row['rate'] || '0';
+        orderType = row['order_type'] || 'MARKET';
+        tradedAt = row['order_timestamp'] || row['traded_at'] || row['trade_date'] || row['date'] || '';
+        orderId = row['order_id'] || row['order_no'] || '';
+        break;
+    }
+
+    // Normalize side values
+    if (side === 'B' || side === 'BUY' || side === 'BOUGHT') side = 'BUY';
+    else if (side === 'S' || side === 'SELL' || side === 'SOLD') side = 'SELL';
 
     if (symbol && side && tradedAt) {
       rows.push({ symbol, exchange, side, quantity, price, order_type: orderType, traded_at: tradedAt, order_id: orderId });
     }
   }
-  return rows;
+  return { rows, detectedBroker };
 }
 
 export async function POST(req: Request) {
@@ -60,10 +127,10 @@ export async function POST(req: Request) {
     }
 
     const csvText = await file.text();
-    const rows = parseCSV(csvText);
+    const { rows, detectedBroker } = parseCSV(csvText);
 
     if (rows.length === 0) {
-      return NextResponse.json({ error: 'No valid rows found in CSV' }, { status: 400 });
+      return NextResponse.json({ error: 'No valid rows found in CSV. Supported formats: Zerodha, Groww, Angel One, Upstox.' }, { status: 400 });
     }
 
     const admin = createAdminClient();
@@ -140,7 +207,7 @@ export async function POST(req: Request) {
       detail: { file_name: file.name, imported, skipped, total: rows.length },
     });
 
-    return NextResponse.json({ success: true, imported, skipped, total: rows.length });
+    return NextResponse.json({ success: true, imported, skipped, total: rows.length, broker: detectedBroker });
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }

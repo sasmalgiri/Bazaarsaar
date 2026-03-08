@@ -11,7 +11,7 @@ interface CSVImportModalProps {
 export function CSVImportModal({ onClose }: CSVImportModalProps) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<{ imported: number; skipped: number; total: number } | null>(null);
+  const [result, setResult] = useState<{ imported: number; skipped: number; total: number; broker?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,7 +31,7 @@ export function CSVImportModal({ onClose }: CSVImportModalProps) {
 
       const data = await res.json();
       if (data.success) {
-        setResult({ imported: data.imported, skipped: data.skipped, total: data.total });
+        setResult({ imported: data.imported, skipped: data.skipped, total: data.total, broker: data.broker });
       } else {
         setError(data.error || 'Import failed');
       }
@@ -47,6 +47,7 @@ export function CSVImportModal({ onClose }: CSVImportModalProps) {
       <GlassCard className="w-full max-w-md p-6 relative">
         <button
           onClick={onClose}
+          title="Close"
           className="absolute top-4 right-4 text-[#6b6b8a] hover:text-[#d4d4e8] bg-transparent border-none cursor-pointer"
         >
           <X size={18} />
@@ -58,9 +59,13 @@ export function CSVImportModal({ onClose }: CSVImportModalProps) {
         </div>
 
         <p className="text-xs text-[#6b6b8a] mb-4">
-          Upload a CSV file exported from Zerodha Console or your broker.
-          Expected columns: symbol, exchange, side (BUY/SELL), quantity, price, traded_at.
+          Upload a CSV file from your broker. We auto-detect the format.
         </p>
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {['Zerodha', 'Groww', 'Angel One', 'Upstox'].map((b) => (
+            <span key={b} className="text-[10px] px-2 py-0.5 rounded bg-white/[0.06] text-[#6b6b8a]">{b}</span>
+          ))}
+        </div>
 
         {!result ? (
           <>
@@ -84,6 +89,7 @@ export function CSVImportModal({ onClose }: CSVImportModalProps) {
                 ref={inputRef}
                 type="file"
                 accept=".csv"
+                aria-label="Select CSV file"
                 className="hidden"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
               />
@@ -115,6 +121,11 @@ export function CSVImportModal({ onClose }: CSVImportModalProps) {
           <div className="text-center py-4">
             <div className="text-3xl mb-3">&#9989;</div>
             <p className="text-sm text-[#d4d4e8] mb-1">Import complete!</p>
+            {result.broker && result.broker !== 'auto' && (
+              <p className="text-xs text-green-500 mb-1">
+                Detected: {result.broker === 'zerodha' ? 'Zerodha' : result.broker === 'groww' ? 'Groww' : result.broker === 'angelone' ? 'Angel One' : result.broker === 'upstox' ? 'Upstox' : result.broker} format
+              </p>
+            )}
             <p className="text-xs text-[#6b6b8a] mb-4">
               {result.imported} trades imported, {result.skipped} skipped out of {result.total} total rows.
             </p>

@@ -12,11 +12,11 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://bazaarsaar.com';
 
 export const metadata: Metadata = {
   title: {
-    default: 'BazaarSaar | \u092C\u093E\u091C\u093C\u093E\u0930\u0938\u093E\u0930 - Indian Market Intelligence',
+    default: 'BazaarSaar | \u092C\u093E\u091C\u093C\u093E\u0930\u0938\u093E\u0930 - Trade Journal & Behavioral Analytics',
     template: '%s | BazaarSaar',
   },
-  description: 'Trade journal, broker sync, and weekly analytics for swing traders, long-term investors, and options traders in the Indian stock market.',
-  keywords: ['Indian stock market', 'trade journal', 'trading journal India', 'Zerodha sync', 'options trading India', 'no investment advice', 'market analytics', 'bazaarsaar'],
+  description: 'Post-trade review and behavioral improvement platform for Indian traders. Journal emotions, track playbook adherence, detect mistake patterns, and improve discipline.',
+  keywords: ['trade journal India', 'trading journal', 'behavioral analytics', 'playbook checklist', 'emotion tracking', 'trading discipline', 'Zerodha journal', 'trade review', 'bazaarsaar'],
   icons: { icon: '/favicon.svg', shortcut: '/favicon.svg', apple: '/favicon.svg' },
   alternates: { canonical: siteUrl },
   openGraph: {
@@ -24,12 +24,12 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: siteUrl,
     siteName: 'BazaarSaar',
-    title: 'BazaarSaar | \u092C\u093E\u091C\u093C\u093E\u0930\u0938\u093E\u0930 - Indian Market Intelligence',
-    description: 'Trade journal, broker sync, and weekly analytics for Indian market participants.',
+    title: 'BazaarSaar | \u092C\u093E\u091C\u093C\u093E\u0930\u0938\u093E\u0930 - Trade Journal & Behavioral Analytics',
+    description: 'Post-trade review and behavioral improvement platform for Indian traders.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BazaarSaar - Indian Market Intelligence',
+    title: 'BazaarSaar - Trade Journal & Behavioral Analytics',
     creator: '@sasmalgiri',
   },
   robots: { index: true, follow: true },

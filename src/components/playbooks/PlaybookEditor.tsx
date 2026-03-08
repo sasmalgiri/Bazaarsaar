@@ -118,6 +118,7 @@ export function PlaybookEditor({ playbookId }: PlaybookEditorProps) {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              placeholder="Playbook title"
               className="w-full px-4 py-2.5 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] outline-none focus:border-green-500/30"
             />
           </div>
@@ -126,6 +127,7 @@ export function PlaybookEditor({ playbookId }: PlaybookEditorProps) {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe your playbook"
               className="w-full px-4 py-2.5 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] outline-none focus:border-green-500/30 resize-none min-h-[60px]"
             />
           </div>
@@ -164,6 +166,7 @@ export function PlaybookEditor({ playbookId }: PlaybookEditorProps) {
                 <select
                   value={step.category}
                   onChange={(e) => handleUpdateStep(step.id, { category: e.target.value as StepCategory })}
+                  aria-label="Step category"
                   className="text-[10px] px-2 py-0.5 rounded bg-white/[0.06] border border-white/[0.06] text-[#6b6b8a] outline-none cursor-pointer"
                 >
                   {CATEGORIES.map((c) => (
@@ -181,6 +184,7 @@ export function PlaybookEditor({ playbookId }: PlaybookEditorProps) {
                 </label>
                 <button
                   onClick={() => handleDeleteStep(step.id)}
+                  title="Delete step"
                   className="text-red-500/60 hover:text-red-500 bg-transparent border-none cursor-pointer p-1 transition-colors"
                 >
                   <Trash2 size={12} />
@@ -189,6 +193,7 @@ export function PlaybookEditor({ playbookId }: PlaybookEditorProps) {
               <input
                 value={step.step_text}
                 onChange={(e) => handleUpdateStep(step.id, { step_text: e.target.value })}
+                placeholder="Step description"
                 className="w-full px-3 py-2 rounded bg-[#0a0a0f] border border-white/[0.04] text-sm text-[#d4d4e8] outline-none focus:border-green-500/20"
               />
             </div>

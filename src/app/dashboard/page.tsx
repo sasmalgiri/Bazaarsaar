@@ -11,9 +11,11 @@ import { EquityCurve } from '@/components/dashboard/EquityCurve';
 import { RecentTradesTable } from '@/components/dashboard/RecentTradesTable';
 import { PnlBySymbol } from '@/components/dashboard/PnlBySymbol';
 import { PnlCalendarHeatmap } from '@/components/dashboard/PnlCalendarHeatmap';
+import { BehavioralInsights } from '@/components/dashboard/BehavioralInsights';
+import { PlaybookComparison } from '@/components/dashboard/PlaybookComparison';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { useDashboardStore } from '@/lib/store/dashboardStore';
-import { Link2, SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { Link2, SlidersHorizontal, RotateCcw, Brain } from 'lucide-react';
 import Link from 'next/link';
 
 interface Trade {
@@ -188,8 +190,18 @@ export default function DashboardPage() {
         ) : null
       )}
 
-      {/* Main grid */}
+      {/* Main grid — Behavioral Insights first */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        {/* Behavioral Intelligence — PRIMARY content */}
+        {isEnabled('behavioral') && (
+          <div className="lg:col-span-2">
+            <BehavioralInsights />
+          </div>
+        )}
+
+        {/* Playbook Comparison */}
+        {isEnabled('playbooks') && <PlaybookComparison />}
+
         {/* Broker Status */}
         {isEnabled('broker') && (
           <GlassCard className="p-6">

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BookOpen, BarChart3, Shield, Link2 } from 'lucide-react';
+import { ArrowRight, BookOpen, BarChart3, Shield, Brain, BookCheck, Target, Upload } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -12,9 +12,13 @@ export default function Home() {
         <p className="text-lg text-[#6b6b8a] mb-1">
           बाज़ारसार
         </p>
-        <p className="text-xl md:text-2xl text-[#9090aa] max-w-2xl mb-8">
-          The intelligent trading journal for Indian market participants.
-          Track, review, and improve your trading.
+        <p className="text-xl md:text-2xl text-[#9090aa] max-w-2xl mb-3">
+          The post-trade review &amp; behavioral improvement platform
+          for Indian traders.
+        </p>
+        <p className="text-sm text-[#6b6b8a] max-w-xl mb-8">
+          Not another trading terminal. BazaarSaar helps you answer {'"Why am I losing money?"'}
+          with emotion tracking, playbook adherence, and mistake pattern detection.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
@@ -38,22 +42,41 @@ export default function Home() {
           <FeatureCard
             icon={<BookOpen size={24} className="text-green-500" />}
             title="Trade Journal"
-            description="Log every trade with thesis, emotions, and playbook adherence. Build self-awareness."
+            description="Log every trade with thesis, emotions (FOMO, revenge, fear), and screenshots. Build self-awareness."
           />
           <FeatureCard
-            icon={<Link2 size={24} className="text-cyan-500" />}
-            title="Zerodha Sync"
-            description="Connect Kite and auto-import your trades. No manual entry needed."
+            icon={<Brain size={24} className="text-amber-500" />}
+            title="Mistake Detection"
+            description={'"You lose 70% when trading with FOMO." Automatic behavioral pattern recognition from your data.'}
           />
           <FeatureCard
-            icon={<BarChart3 size={24} className="text-amber-500" />}
-            title="Weekly Reports"
-            description="Auto-generated P&L analytics, win rates, emotion patterns, and playbook scores."
+            icon={<BookCheck size={24} className="text-cyan-500" />}
+            title="Playbook Adherence"
+            description="Create checklists, attach them to trades, and track which rules you actually follow."
           />
           <FeatureCard
-            icon={<Shield size={24} className="text-purple-500" />}
+            icon={<BarChart3 size={24} className="text-purple-500" />}
+            title="Weekly Review"
+            description="Auto-generated reports with win rate, emotion distribution, playbook scores, and missed steps."
+          />
+        </div>
+
+        {/* Secondary features */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl w-full mt-6">
+          <FeatureCard
+            icon={<Upload size={24} className="text-[#6b6b8a]" />}
+            title="Multi-Broker CSV"
+            description="Import from Zerodha, Groww, Angel One, or Upstox. Auto-detects format."
+          />
+          <FeatureCard
+            icon={<Target size={24} className="text-[#6b6b8a]" />}
+            title="Playbook Comparison"
+            description="See which strategy actually works: win rate and avg P&L per playbook."
+          />
+          <FeatureCard
+            icon={<Shield size={24} className="text-[#6b6b8a]" />}
             title="No Investment Advice"
-            description="Descriptive-only analytics with export/delete controls (DPDP)."
+            description="Descriptive-only analytics. Full data export and delete (DPDP compliant)."
           />
         </div>
       </div>
@@ -61,7 +84,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-white/[0.06] px-6 py-6 text-center">
         <p className="text-[11px] text-[#4a4a6a] max-w-2xl mx-auto mb-3">
-          BazaarSaar is a journaling and analytics tool — not a trading platform.
+          BazaarSaar is a journaling and behavioral analytics tool — not a trading platform.
           We do not provide investment advice, tips, or recommendations.
           Subject to market risks.
         </p>
@@ -69,6 +92,7 @@ export default function Home() {
           <Link href="/terms" className="text-[11px] text-[#4a4a6a] hover:text-[#6b6b8a] no-underline">Terms</Link>
           <Link href="/privacy" className="text-[11px] text-[#4a4a6a] hover:text-[#6b6b8a] no-underline">Privacy</Link>
           <Link href="/disclaimer" className="text-[11px] text-[#4a4a6a] hover:text-[#6b6b8a] no-underline">Disclaimer</Link>
+          <Link href="/refund" className="text-[11px] text-[#4a4a6a] hover:text-[#6b6b8a] no-underline">Refund</Link>
         </div>
         <p className="text-[10px] text-[#32324a] mt-2">
           &copy; {new Date().getFullYear()} BazaarSaar. All rights reserved.

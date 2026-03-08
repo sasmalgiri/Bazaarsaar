@@ -1,7 +1,7 @@
 {
-  "name": "BazaarSaar - Indian Market Intelligence",
+  "name": "BazaarSaar - Trade Journal & Behavioral Analytics",
   "short_name": "BazaarSaar",
-  "description": "Trade journal, broker sync, and weekly analytics for Indian stock market traders and investors.",
+  "description": "Post-trade review and behavioral improvement platform for Indian traders. Journal emotions, track playbook adherence, and improve discipline.",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#0a0a0f",
@@ -13,5 +13,5 @@
       "type": "image/svg+xml"
     }
   ],
-  "categories": ["finance", "business"]
+  "categories": ["finance", "business", "productivity"]
 }

@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
               "base-uri 'self'",
               "form-action 'self' https://*.supabase.co https://accounts.google.com",
               "frame-ancestors 'none'",
-              "connect-src 'self' *.supabase.co https://accounts.google.com https://apis.google.com https://fonts.googleapis.com",
+              "connect-src 'self' *.supabase.co https://accounts.google.com https://apis.google.com https://fonts.googleapis.com https://query1.finance.yahoo.com https://query2.finance.yahoo.com",
             ].join('; '),
           },
           {

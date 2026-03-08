@@ -9,12 +9,14 @@ export interface DashboardWidget {
 
 const DEFAULT_WIDGETS: DashboardWidget[] = [
   { id: 'kpis', label: 'KPI Cards', enabled: true },
+  { id: 'behavioral', label: 'Behavioral Insights', enabled: true },
+  { id: 'playbooks', label: 'Playbook Comparison', enabled: true },
   { id: 'broker', label: 'Broker Connection', enabled: true },
-  { id: 'watchlist', label: 'Watchlist', enabled: true },
   { id: 'equity', label: 'Equity Curve', enabled: true },
   { id: 'pnlSymbol', label: 'P&L by Symbol', enabled: true },
   { id: 'heatmap', label: 'P&L Heatmap', enabled: true },
   { id: 'recentTrades', label: 'Recent Trades', enabled: true },
+  { id: 'watchlist', label: 'Watchlist', enabled: false },
 ];
 
 interface DashboardStore {
