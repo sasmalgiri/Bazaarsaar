@@ -10,6 +10,8 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
       "prefer-const": "warn",
+      "react/forbid-component-props": "off",
+      "react/no-inline-styles": "off",
     },
   },
 ];

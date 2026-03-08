@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -12,6 +13,7 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signUp, signInWithGoogle } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +22,8 @@ export default function SignupPage() {
     const result = await signUp(email, password);
     if (result.error) {
       setError(result.error);
+    } else if (result.session) {
+      router.push('/dashboard');
     } else {
       setSuccess(true);
     }
