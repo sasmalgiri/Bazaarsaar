@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { yahooFetch } from '@/lib/yahooFinance';
 
 /**
  * GET /api/stocks/quote?symbols=RELIANCE,TCS,INFY
@@ -33,14 +34,9 @@ export async function GET(req: Request) {
   const tickers = symbols.map((s) => (s.includes('.') ? s : `${s}.NS`));
 
   try {
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${tickers.join(',')}`;
+    const url = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${tickers.join(',')}`;
 
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; BazaarSaar/1.0)',
-      },
-      next: { revalidate: 60 }, // cache for 1 minute
-    });
+    const res = await yahooFetch(url);
 
     if (!res.ok) {
       return NextResponse.json(

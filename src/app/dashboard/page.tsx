@@ -37,7 +37,7 @@ interface BrokerConnection {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { persona, onboardingCompleted } = usePersonaStore();
+  const { persona, onboardingCompleted, _hasHydrated } = usePersonaStore();
   const { widgets, toggleWidget, resetWidgets } = useDashboardStore();
   const [trades, setTrades] = useState<Trade[]>([]);
   const [broker, setBroker] = useState<BrokerConnection | null>(null);
@@ -47,10 +47,11 @@ export default function DashboardPage() {
   const isEnabled = (id: string) => widgets.find((w) => w.id === id)?.enabled !== false;
 
   useEffect(() => {
+    if (!_hasHydrated) return; // wait for localStorage to load
     if (!onboardingCompleted || !persona) {
       router.replace('/onboarding');
     }
-  }, [onboardingCompleted, persona, router]);
+  }, [_hasHydrated, onboardingCompleted, persona, router]);
 
   useEffect(() => {
     async function fetchData() {
@@ -119,7 +120,7 @@ export default function DashboardPage() {
     };
   }, [trades]);
 
-  if (!persona) return null;
+  if (!_hasHydrated || !persona) return null;
 
   const hasTrades = trades.length > 0;
 

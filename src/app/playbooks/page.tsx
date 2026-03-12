@@ -112,6 +112,32 @@ export default function PlaybooksPage() {
         </button>
       </div>
 
+      {/* What is a Playbook */}
+      {myPlaybooks.length === 0 && (
+        <GlassCard className="p-5 mb-8 border-green-500/10">
+          <h2 className="text-sm font-semibold text-[#d4d4e8] mb-2">What is a Playbook?</h2>
+          <p className="text-xs text-[#6b6b8a] leading-relaxed mb-3">
+            A playbook is your personal trading checklist — like a recipe for a specific trade setup.
+            Before entering a trade, you check off each step (setup identified, entry confirmed, risk defined, emotions in check).
+            Over time, BazaarSaar shows you which playbooks actually make you money and where you skip steps.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="p-3 rounded-lg bg-white/[0.03]">
+              <p className="text-xs font-medium text-green-500 mb-1">1. Pick a template</p>
+              <p className="text-[11px] text-[#4a4a6a]">Choose a checklist that matches your trading style (breakout, swing, options).</p>
+            </div>
+            <div className="p-3 rounded-lg bg-white/[0.03]">
+              <p className="text-xs font-medium text-green-500 mb-1">2. Use it when journaling</p>
+              <p className="text-[11px] text-[#4a4a6a]">When you log a trade, select your playbook and check off each step you followed.</p>
+            </div>
+            <div className="p-3 rounded-lg bg-white/[0.03]">
+              <p className="text-xs font-medium text-green-500 mb-1">3. See what works</p>
+              <p className="text-[11px] text-[#4a4a6a]">After enough trades, see win rates and P&L per playbook. Data-driven improvement.</p>
+            </div>
+          </div>
+        </GlassCard>
+      )}
+
       {/* My Playbooks */}
       <div className="mb-8">
         <h2 className="text-sm font-semibold text-[#6b6b8a] uppercase tracking-wider mb-3">My Playbooks</h2>

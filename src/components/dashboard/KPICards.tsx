@@ -1,6 +1,7 @@
 'use client';
 
 import { GlassCard } from '@/components/ui/GlassCard';
+import { Tooltip } from '@/components/ui/Tooltip';
 import { TrendingUp, TrendingDown, Target, BarChart3, Flame, Scale } from 'lucide-react';
 import { formatINR } from '@/lib/marketTime';
 
@@ -27,12 +28,14 @@ export function KPICards({ totalTrades, winCount, lossCount, netPnl, avgWin, avg
   const kpis = [
     {
       label: 'Total Trades',
+      tooltip: 'Total number of completed trades imported',
       value: totalTrades.toString(),
       icon: BarChart3,
       color: 'text-cyan-500',
     },
     {
       label: 'Win Rate',
+      tooltip: 'Percentage of trades with positive P&L',
       value: `${winRate.toFixed(1)}%`,
       sub: `${winCount}W / ${lossCount}L`,
       icon: Target,
@@ -40,12 +43,14 @@ export function KPICards({ totalTrades, winCount, lossCount, netPnl, avgWin, avg
     },
     {
       label: 'Net P&L',
+      tooltip: 'Total profit minus total loss across all trades',
       value: formatINR(netPnl, true),
       icon: netPnl >= 0 ? TrendingUp : TrendingDown,
       color: netPnl >= 0 ? 'text-green-500' : 'text-red-500',
     },
     {
       label: 'Avg Win / Loss',
+      tooltip: 'Risk-Reward ratio: how much you win vs lose per trade on average. Above 1.5 is good.',
       value: riskReward > 0 ? `${riskReward.toFixed(2)}R` : '--',
       sub: riskReward > 0 ? `${formatINR(avgWin, true)} / ${formatINR(Math.abs(avgLoss), true)}` : undefined,
       icon: Scale,
@@ -53,6 +58,7 @@ export function KPICards({ totalTrades, winCount, lossCount, netPnl, avgWin, avg
     },
     {
       label: 'Streak',
+      tooltip: 'Current consecutive wins (W) or losses (L)',
       value: streakLabel,
       icon: Flame,
       color: streakColor,
@@ -65,7 +71,11 @@ export function KPICards({ totalTrades, winCount, lossCount, netPnl, avgWin, avg
         <GlassCard key={kpi.label} className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <kpi.icon size={14} className={kpi.color} />
-            <span className="text-[10px] text-[#6b6b8a] uppercase tracking-wider">{kpi.label}</span>
+            <Tooltip text={kpi.tooltip}>
+              <span className="text-[10px] text-[#6b6b8a] uppercase tracking-wider cursor-help border-b border-dotted border-[#4a4a6a]">
+                {kpi.label}
+              </span>
+            </Tooltip>
           </div>
           <p className={`text-xl font-bold ${kpi.color}`}>{kpi.value}</p>
           {kpi.sub && (

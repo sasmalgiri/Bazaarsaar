@@ -15,7 +15,7 @@ function getKeyBuffer(): Buffer {
 }
 
 /**
- * Encrypt plaintext. Returns "iv_hex:ciphertext_hex:tag_hex" string.
+ * Encrypt plaintext. Returns "iv_hex:ciphertext_with_tag_hex" string.
  */
 export function encrypt(plaintext: string): string {
   const key = getKeyBuffer();
@@ -27,8 +27,8 @@ export function encrypt(plaintext: string): string {
 }
 
 /**
- * Decrypt "iv_hex:ciphertext_hex" string back to plaintext.
- * Handles both formats: with separate tag and combined ciphertext+tag.
+ * Decrypt "iv_hex:ciphertext_with_tag_hex" string back to plaintext.
+ * Auth tag is the last 16 bytes of the data segment.
  */
 export function decrypt(encryptedStr: string): string {
   const key = getKeyBuffer();

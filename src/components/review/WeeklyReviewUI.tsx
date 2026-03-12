@@ -46,11 +46,22 @@ export function WeeklyReviewUI() {
     return (
       <GlassCard className="p-8 text-center">
         <BarChart3 size={32} className="mx-auto text-[#32324a] mb-3" />
-        <p className="text-sm text-[#6b6b8a] mb-1">No weekly reports yet</p>
-        <p className="text-xs text-[#4a4a6a]">
-          Weekly reports are generated automatically once you have trades.
-          Reports are descriptive summaries of your trading patterns.
+        <p className="text-sm font-semibold text-[#d4d4e8] mb-2">Your weekly report will appear here</p>
+        <p className="text-xs text-[#4a4a6a] mb-4 max-w-md mx-auto leading-relaxed">
+          Every Monday, BazaarSaar generates a report of your past week — win rate, P&L, emotional patterns,
+          and which playbooks worked best. Import trades and journal them to unlock your first report.
         </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto mb-4">
+          <div className="p-2 rounded bg-white/[0.03]">
+            <p className="text-[11px] text-[#6b6b8a]">Win Rate &amp; P&L</p>
+          </div>
+          <div className="p-2 rounded bg-white/[0.03]">
+            <p className="text-[11px] text-[#6b6b8a]">Emotion Patterns</p>
+          </div>
+          <div className="p-2 rounded bg-white/[0.03]">
+            <p className="text-[11px] text-[#6b6b8a]">Playbook Stats</p>
+          </div>
+        </div>
         <SEBIDisclaimer type="journal" />
       </GlassCard>
     );

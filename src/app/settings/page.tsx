@@ -5,6 +5,7 @@ import { AccountSettings } from '@/components/settings/AccountSettings';
 import { LanguageSettings } from '@/components/settings/LanguageSettings';
 import { useTranslation } from '@/lib/i18n/useTranslation';
 import { Settings } from 'lucide-react';
+import { FEATURES } from '@/lib/featureFlags';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
@@ -18,7 +19,7 @@ export default function SettingsPage() {
 
       <div className="space-y-6">
         <LanguageSettings />
-        <BrokerSettings />
+        {FEATURES.zerodha && <BrokerSettings />}
         <AccountSettings />
       </div>
     </div>

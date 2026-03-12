@@ -84,17 +84,34 @@ export function TradesList() {
 
   if (trades.length === 0) {
     return (
-      <GlassCard className="p-8 text-center">
-        <p className="text-sm text-[#6b6b8a] mb-3">No trades found</p>
-        <p className="text-xs text-[#4a4a6a] mb-4">
-          Connect your broker or import a CSV from Settings to see trades here.
-        </p>
-        <Link
-          href="/settings"
-          className="px-4 py-2 rounded-lg text-xs text-green-500 border border-green-500/20 bg-transparent hover:bg-green-500/10 transition-all no-underline"
-        >
-          Go to Settings
-        </Link>
+      <GlassCard className="p-8">
+        <p className="text-lg font-semibold text-[#d4d4e8] mb-2 text-center">Get started in 2 minutes</p>
+        <p className="text-xs text-[#4a4a6a] mb-6 text-center">Import your trades, then journal your emotions and decisions. BazaarSaar will show you patterns.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="p-4 rounded-lg bg-white/[0.03] text-center">
+            <div className="text-2xl mb-2">1</div>
+            <p className="text-xs font-medium text-[#d4d4e8] mb-1">Import trades</p>
+            <p className="text-[11px] text-[#4a4a6a]">Connect Zerodha or upload a CSV from your broker&apos;s contract note.</p>
+          </div>
+          <div className="p-4 rounded-lg bg-white/[0.03] text-center">
+            <div className="text-2xl mb-2">2</div>
+            <p className="text-xs font-medium text-[#d4d4e8] mb-1">Journal each trade</p>
+            <p className="text-[11px] text-[#4a4a6a]">Add your thesis, emotion, and playbook checklist. Takes 30 seconds per trade.</p>
+          </div>
+          <div className="p-4 rounded-lg bg-white/[0.03] text-center">
+            <div className="text-2xl mb-2">3</div>
+            <p className="text-xs font-medium text-[#d4d4e8] mb-1">Discover patterns</p>
+            <p className="text-[11px] text-[#4a4a6a]">See which setups make money, which emotions cost you, and where to improve.</p>
+          </div>
+        </div>
+        <div className="flex justify-center">
+          <Link
+            href="/settings"
+            className="px-5 py-2.5 rounded-lg text-sm font-medium text-[#0d0d14] bg-green-500 hover:bg-green-400 transition-colors no-underline"
+          >
+            Import Trades from Settings
+          </Link>
+        </div>
       </GlassCard>
     );
   }

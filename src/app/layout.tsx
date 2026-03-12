@@ -8,7 +8,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://bazaarsaar.com';
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://bazzarsaar.com';
 
 export const metadata: Metadata = {
   title: {

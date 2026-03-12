@@ -14,9 +14,14 @@ export async function POST() {
 
     const admin = createAdminClient();
 
-    // Acquire sync lock
+    // Clear any expired locks first
+    await admin.from('sync_lock').delete()
+      .eq('user_id', user.id)
+      .lt('expires_at', new Date().toISOString());
+
+    // Acquire sync lock — INSERT (not upsert) so it fails if lock exists
     const lockExpiry = new Date(Date.now() + 5 * 60 * 1000).toISOString();
-    const { error: lockError } = await admin.from('sync_lock').upsert({
+    const { error: lockError } = await admin.from('sync_lock').insert({
       user_id: user.id,
       locked_at: new Date().toISOString(),
       expires_at: lockExpiry,

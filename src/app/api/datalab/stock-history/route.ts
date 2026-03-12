@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { yahooFetch } from '@/lib/yahooFinance';
 
 /**
  * GET /api/datalab/stock-history?symbol=RELIANCE&period=1y&interval=1d
@@ -43,12 +44,7 @@ export async function GET(req: Request) {
   const url = `https://query1.finance.yahoo.com/v7/finance/download/${encodeURIComponent(ticker)}?period1=${period1}&period2=${now}&interval=${interval}&events=history&includeAdjustedClose=true`;
 
   try {
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; BazaarSaar/1.0)',
-      },
-      next: { revalidate: 3600 }, // cache for 1 hour
-    });
+    const res = await yahooFetch(url);
 
     if (!res.ok) {
       const text = await res.text();

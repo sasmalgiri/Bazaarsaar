@@ -27,7 +27,7 @@ export async function GET() {
       expires_at: expiresAt,
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://bazaarsaar.com';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://bazzarsaar.com';
     const redirectUrl = `${appUrl}/auth/zerodha/callback`;
     const loginUrl = `https://kite.zerodha.com/connect/login?v=3&api_key=${apiKey}&redirect_url=${encodeURIComponent(redirectUrl)}&state=${state}`;
 
