@@ -1,83 +1,67 @@
 /**
- * Yahoo Finance API helper with crumb/cookie authentication.
- * Yahoo requires a valid crumb + cookie pair for API access (enforced since 2023).
- * We cache the crumb/cookie for 30 minutes to avoid excessive requests.
+ * Yahoo Finance helper using the yahoo-finance2 package (v3).
+ * This package handles crumb/cookie authentication automatically
+ * and stays updated with Yahoo's API changes.
  */
+import YahooFinance from 'yahoo-finance2';
 
-let cachedCrumb: string | null = null;
-let cachedCookie: string | null = null;
-let cachedAt = 0;
-const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const yf = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
-
-async function fetchCrumb(): Promise<{ crumb: string; cookie: string }> {
-  // Step 1: Get consent cookie from Yahoo Finance
-  const consentRes = await fetch('https://fc.yahoo.com', {
-    headers: { 'User-Agent': USER_AGENT },
-    redirect: 'manual',
-  });
-  // We need the set-cookie header even from a redirect/error
-  const setCookies = consentRes.headers.getSetCookie?.() ?? [];
-  const cookieJar = setCookies.map(c => c.split(';')[0]).join('; ');
-
-  // Step 2: Fetch the crumb using the cookie
-  const crumbRes = await fetch('https://query2.finance.yahoo.com/v1/test/getcrumb', {
-    headers: {
-      'User-Agent': USER_AGENT,
-      'Cookie': cookieJar,
-    },
+/**
+ * Fetch historical stock data (OHLCV).
+ */
+export async function getHistoricalData(
+  symbol: string,
+  period1: Date,
+  period2: Date,
+  interval: '1d' | '1wk' | '1mo' = '1d'
+) {
+  const result = await yf.chart(symbol, {
+    period1,
+    period2,
+    interval,
   });
 
-  if (!crumbRes.ok) {
-    throw new Error(`Failed to fetch Yahoo crumb: ${crumbRes.status}`);
+  if (!result.quotes || result.quotes.length === 0) {
+    return [];
   }
 
-  const crumb = await crumbRes.text();
-  return { crumb: crumb.trim(), cookie: cookieJar };
-}
-
-async function getCrumbAndCookie(): Promise<{ crumb: string; cookie: string }> {
-  const now = Date.now();
-  if (cachedCrumb && cachedCookie && now - cachedAt < CACHE_TTL) {
-    return { crumb: cachedCrumb, cookie: cachedCookie };
-  }
-
-  const { crumb, cookie } = await fetchCrumb();
-  cachedCrumb = crumb;
-  cachedCookie = cookie;
-  cachedAt = now;
-  return { crumb, cookie };
+  return result.quotes
+    .filter((q: Record<string, unknown>) => q.close !== null && q.close !== undefined)
+    .map((q: Record<string, unknown>) => ({
+      date: (q.date as Date).toISOString().split('T')[0],
+      open: (q.open as number) ?? 0,
+      high: (q.high as number) ?? 0,
+      low: (q.low as number) ?? 0,
+      close: q.close as number,
+      volume: (q.volume as number) ?? 0,
+    }));
 }
 
 /**
- * Fetch from Yahoo Finance API with proper authentication.
- * Automatically retries once if crumb is stale.
+ * Fetch real-time quotes for multiple symbols.
  */
-export async function yahooFetch(url: string): Promise<Response> {
-  const { crumb, cookie } = await getCrumbAndCookie();
-  const separator = url.includes('?') ? '&' : '?';
-  const authedUrl = `${url}${separator}crumb=${encodeURIComponent(crumb)}`;
+export async function getQuotes(symbols: string[]) {
+  const results: Record<
+    string,
+    { price: number; change: number; changePercent: number; volume: number }
+  > = {};
 
-  let res = await fetch(authedUrl, {
-    headers: {
-      'User-Agent': USER_AGENT,
-      'Cookie': cookie,
-    },
-  });
-
-  // If 401/403, crumb might be stale — refresh and retry once
-  if (res.status === 401 || res.status === 403) {
-    cachedCrumb = null; // force refresh
-    const fresh = await getCrumbAndCookie();
-    const freshUrl = `${url}${separator}crumb=${encodeURIComponent(fresh.crumb)}`;
-    res = await fetch(freshUrl, {
-      headers: {
-        'User-Agent': USER_AGENT,
-        'Cookie': fresh.cookie,
-      },
-    });
+  for (const symbol of symbols) {
+    try {
+      const q = await yf.quote(symbol);
+      const sym = symbol.replace('.NS', '').replace('.BO', '');
+      results[sym] = {
+        price: (q as Record<string, unknown>).regularMarketPrice as number ?? 0,
+        change: (q as Record<string, unknown>).regularMarketChange as number ?? 0,
+        changePercent: (q as Record<string, unknown>).regularMarketChangePercent as number ?? 0,
+        volume: (q as Record<string, unknown>).regularMarketVolume as number ?? 0,
+      };
+    } catch {
+      const sym = symbol.replace('.NS', '').replace('.BO', '');
+      results[sym] = { price: 0, change: 0, changePercent: 0, volume: 0 };
+    }
   }
 
-  return res;
+  return results;
 }
