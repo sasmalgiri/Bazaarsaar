@@ -8,15 +8,22 @@ import {
   Heart, ExternalLink, CheckCircle2, Twitter, Youtube, Mail
 } from 'lucide-react';
 
-const WHATSAPP_GROUP_LINK = 'https://chat.whatsapp.com/YOUR_GROUP_INVITE_LINK'; // Replace with actual link
+// ============================================================
+// UPDATE THESE LINKS with your actual social/community URLs
+// Set to '' to show "Coming Soon" badge instead of a broken link
+// ============================================================
+const WHATSAPP_GROUP_LINK = ''; // e.g. 'https://chat.whatsapp.com/ABC123...'
+const TWITTER_LINK = '';        // e.g. 'https://twitter.com/bazaarsaar'
+const YOUTUBE_LINK = '';        // e.g. 'https://youtube.com/@bazaarsaar'
+const EMAIL_ADDRESS = 'hello@bazzarsaar.com';
 
 const COMMUNITY_LINKS = [
   {
     icon: MessageCircle,
     title: 'WhatsApp Community',
     titleHi: 'WhatsApp समुदाय',
-    desc: 'Join 500+ Indian traders. Share ideas, ask questions, get help. No spam, no tips.',
-    descHi: '500+ भारतीय traders से जुड़ें। विचार साझा करें, सवाल पूछें। कोई spam नहीं, कोई tips नहीं।',
+    desc: 'Join Indian traders. Share ideas, ask questions, get help. No spam, no tips.',
+    descHi: 'भारतीय traders से जुड़ें। विचार साझा करें, सवाल पूछें। कोई spam नहीं, कोई tips नहीं।',
     href: WHATSAPP_GROUP_LINK,
     cta: 'Join WhatsApp Group',
     color: 'bg-green-500/10 text-green-500 border-green-500/20',
@@ -26,9 +33,9 @@ const COMMUNITY_LINKS = [
     icon: Twitter,
     title: 'Follow on X (Twitter)',
     titleHi: 'X (Twitter) पर follow करें',
-    desc: 'Daily market insights, app updates, and trading psychology tips.',
-    descHi: 'रोज़ाना market insights, app updates, और trading psychology tips।',
-    href: 'https://twitter.com/bazaarsaar',
+    desc: 'App updates, trading psychology tips, and market insights.',
+    descHi: 'App updates, trading psychology tips, और market insights।',
+    href: TWITTER_LINK,
     cta: 'Follow @bazaarsaar',
     color: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20',
     iconColor: 'text-cyan-500',
@@ -39,7 +46,7 @@ const COMMUNITY_LINKS = [
     titleHi: 'YouTube चैनल',
     desc: 'Video tutorials: How to use BazaarSaar, trading basics, and weekly market analysis.',
     descHi: 'Video tutorials: BazaarSaar कैसे use करें, trading basics, और weekly market analysis।',
-    href: 'https://youtube.com/@bazaarsaar',
+    href: YOUTUBE_LINK,
     cta: 'Subscribe',
     color: 'bg-red-500/10 text-red-500 border-red-500/20',
     iconColor: 'text-red-500',
@@ -50,7 +57,7 @@ const COMMUNITY_LINKS = [
     titleHi: 'हमें Email करें',
     desc: 'Have a question or need help? We reply to every email within 24 hours.',
     descHi: 'कोई सवाल है या मदद चाहिए? हम हर email का 24 घंटे में जवाब देते हैं।',
-    href: 'mailto:hello@bazzarsaar.com',
+    href: EMAIL_ADDRESS ? `mailto:${EMAIL_ADDRESS}` : '',
     cta: 'Send Email',
     color: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
     iconColor: 'text-amber-500',
@@ -112,32 +119,45 @@ export default function CommunityPage() {
 
       {/* Community Links */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {COMMUNITY_LINKS.map((link) => (
-          <a
-            key={link.title}
-            href={link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="no-underline"
-          >
-            <GlassCard className="p-5 h-full hover:border-white/[0.15] transition-all cursor-pointer group">
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${link.color.split(' ')[0]}`}>
-                  <link.icon size={20} className={link.iconColor} />
+        {COMMUNITY_LINKS.map((link) => {
+          const isActive = !!link.href;
+          const Wrapper = isActive ? 'a' : 'div';
+          const wrapperProps = isActive
+            ? { href: link.href, target: '_blank', rel: 'noopener noreferrer', className: 'no-underline' }
+            : { className: '' };
+
+          return (
+            <Wrapper key={link.title} {...wrapperProps}>
+              <GlassCard className={`p-5 h-full transition-all ${isActive ? 'hover:border-white/[0.15] cursor-pointer' : 'opacity-70'} group`}>
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${link.color.split(' ')[0]}`}>
+                    <link.icon size={20} className={link.iconColor} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-[#d4d4e8] group-hover:text-[#fafaff] transition-colors">{link.title}</h3>
+                      {!isActive && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 font-medium">Coming Soon</span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-amber-500/50" lang="hi">{link.titleHi}</p>
+                    <p className="text-xs text-[#6b6b8a] mt-1.5 leading-relaxed">{link.desc}</p>
+                    <p className="text-[10px] text-amber-500/40 mt-0.5" lang="hi">{link.descHi}</p>
+                    {isActive ? (
+                      <span className={`inline-flex items-center gap-1 mt-3 text-[11px] font-medium ${link.color.split(' ')[1]} group-hover:underline`}>
+                        {link.cta} <ExternalLink size={10} />
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 mt-3 text-[11px] text-[#4a4a6a]">
+                        We&apos;re setting this up — check back soon!
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-[#d4d4e8] group-hover:text-[#fafaff] transition-colors">{link.title}</h3>
-                  <p className="text-[10px] text-amber-500/50" lang="hi">{link.titleHi}</p>
-                  <p className="text-xs text-[#6b6b8a] mt-1.5 leading-relaxed">{link.desc}</p>
-                  <p className="text-[10px] text-amber-500/40 mt-0.5" lang="hi">{link.descHi}</p>
-                  <span className={`inline-flex items-center gap-1 mt-3 text-[11px] font-medium ${link.color.split(' ')[1]} group-hover:underline`}>
-                    {link.cta} <ExternalLink size={10} />
-                  </span>
-                </div>
-              </div>
-            </GlassCard>
-          </a>
-        ))}
+              </GlassCard>
+            </Wrapper>
+          );
+        })}
       </div>
 
       {/* Community Rules */}
