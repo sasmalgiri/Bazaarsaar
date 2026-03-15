@@ -35,9 +35,13 @@ export function ConsentForm() {
   return (
     <div className="w-full max-w-lg animate-fade-in">
       <GlassCard className="p-8">
-        <h2 className="text-xl font-bold text-[#fafaff] mb-2">Data & Privacy Consent</h2>
-        <p className="text-sm text-[#6b6b8a] mb-6">
-          Under the Digital Personal Data Protection Act (DPDP), 2023, we need your consent for the following:
+        <h2 className="text-xl font-bold text-[#fafaff] mb-1">Your Data, Your Control</h2>
+        <p className="text-sm text-amber-500/70 mb-2" lang="hi">आपका डेटा, आपका नियंत्रण</p>
+        <p className="text-sm text-[#6b6b8a] mb-2">
+          Before we start, we need your permission to save your information. This is required by India&apos;s data protection law (DPDP Act, 2023).
+        </p>
+        <p className="text-[11px] text-amber-500/50 mb-6" lang="hi">
+          शुरू करने से पहले, आपकी जानकारी save करने की अनुमति चाहिए। यह भारत के data protection कानून (DPDP Act, 2023) के तहत ज़रूरी है।
         </p>
 
         <div className="space-y-4 mb-8">
@@ -50,10 +54,14 @@ export function ConsentForm() {
             />
             <div>
               <p className="text-sm font-medium text-[#d4d4e8] group-hover:text-[#fafaff] transition-colors">
-                Store my trade data
+                Save my buying/selling records
               </p>
+              <p className="text-[11px] text-amber-500/50" lang="hi">मेरी खरीद-बिक्री का रिकॉर्ड save करें</p>
               <p className="text-xs text-[#6b6b8a] mt-0.5">
-                Your trades, journal entries, and preferences are stored securely in our database with row-level security. You can export or delete all data at any time.
+                When you buy or sell a stock, that&apos;s called a &quot;trade.&quot; We save your trades, notes, and settings safely. You can download or delete everything anytime.
+              </p>
+              <p className="text-[10px] text-amber-500/40 mt-0.5" lang="hi">
+                जब आप stock खरीदते/बेचते हैं, उसे &quot;trade&quot; कहते हैं। हम आपके trades, नोट्स और settings सुरक्षित रखते हैं। कभी भी delete कर सकते हैं।
               </p>
             </div>
           </label>
@@ -67,10 +75,14 @@ export function ConsentForm() {
             />
             <div>
               <p className="text-sm font-medium text-[#d4d4e8] group-hover:text-[#fafaff] transition-colors">
-                Connect to broker (optional)
+                Connect my Zerodha account (optional)
               </p>
+              <p className="text-[11px] text-amber-500/50" lang="hi">मेरा Zerodha account जोड़ें (वैकल्पिक)</p>
               <p className="text-xs text-[#6b6b8a] mt-0.5">
-                If you connect Zerodha, we fetch your trade history via API. Tokens are encrypted at rest and expire daily at 6 AM IST. You can disconnect anytime.
+                Zerodha is a stock broker app (like Groww, Angel One). If you use it, we can automatically pull your trade history so you don&apos;t have to type it manually. Your login stays safe and expires every day.
+              </p>
+              <p className="text-[10px] text-amber-500/40 mt-0.5" lang="hi">
+                Zerodha एक stock broker app है। अगर आप इसे use करते हैं, तो हम आपकी trade history अपने आप ला सकते हैं। आपका login सुरक्षित रहता है।
               </p>
             </div>
           </label>
@@ -84,21 +96,26 @@ export function ConsentForm() {
             />
             <div>
               <p className="text-sm font-medium text-[#d4d4e8] group-hover:text-[#fafaff] transition-colors">
-                Generate descriptive analytics
+                Show me my weekly report card
               </p>
+              <p className="text-[11px] text-amber-500/50" lang="hi">मुझे मेरा weekly report card दिखाएं</p>
               <p className="text-xs text-[#6b6b8a] mt-0.5">
-                Weekly reports summarize your trading patterns (win rate, P&L, emotions). These are descriptive only — never prescriptive advice.
+                Every week, we create a simple summary: How many trades did you win? How much profit or loss? Were you calm or stressed? This is just a report — we never tell you what to buy or sell.
+              </p>
+              <p className="text-[10px] text-amber-500/40 mt-0.5" lang="hi">
+                हर हफ़्ते एक summary: कितने trades जीते? कितना फ़ायदा/नुकसान? शांत थे या तनाव में? यह सिर्फ़ report है — हम कभी नहीं बताते कि क्या खरीदें/बेचें।
               </p>
             </div>
           </label>
         </div>
 
         <div className="border-t border-white/[0.06] pt-4 mb-6">
-          <p className="text-[11px] text-[#4a4a6a] leading-relaxed">
-            By proceeding, you acknowledge that BazaarSaar is not a SEBI-registered investment advisor.
-            All analytics are descriptive. We never recommend trades. Your data is never shared with third parties.
-            We do not sell your personal data or share it for marketing; we use service providers to operate the app (e.g., hosting/analytics/broker integrations you enable).
-            You may request deletion at any time, and you can withdraw consent by requesting deletion or contacting us under DPDP Act, 2023.
+          <p className="text-[11px] text-[#4a4a6a] leading-relaxed mb-1">
+            <strong className="text-[#6b6b8a]">Important:</strong> BazaarSaar is NOT a financial advisor. We don&apos;t tell you what to buy or sell. We don&apos;t share your data with anyone.
+            You can delete all your data anytime. SEBI = Securities and Exchange Board of India (the government body that regulates the stock market).
+          </p>
+          <p className="text-[10px] text-amber-500/40 leading-relaxed" lang="hi">
+            BazaarSaar कोई financial advisor नहीं है। हम नहीं बताते कि क्या खरीदें/बेचें। आपका data किसी से share नहीं होता। कभी भी data delete कर सकते हैं।
           </p>
         </div>
 

@@ -9,16 +9,16 @@ import { useTranslation } from '@/lib/i18n/useTranslation';
 import type { TranslationKey } from '@/lib/i18n/translations';
 import { cn } from '@/lib/utils';
 
-const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: typeof LayoutDashboard }[] = [
-  { href: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
-  { href: '/morning-checklist', labelKey: 'nav.morningChecklist', icon: Sun },
-  { href: '/trades', labelKey: 'nav.trades', icon: ArrowLeftRight },
-  { href: '/playbooks', labelKey: 'nav.playbooks', icon: BookCheck },
-  { href: '/review/weekly', labelKey: 'nav.weeklyReview', icon: CalendarCheck },
-  { href: '/learn', labelKey: 'nav.learn', icon: Brain },
-  { href: '/datalab', labelKey: 'nav.datalab', icon: FlaskConical },
-  { href: '/dashboard/watchlist', labelKey: 'nav.watchlist', icon: Eye },
-  { href: '/settings', labelKey: 'nav.settings', icon: Settings },
+const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: typeof LayoutDashboard; hint: string }[] = [
+  { href: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard, hint: 'Your home page — see everything at a glance' },
+  { href: '/morning-checklist', labelKey: 'nav.morningChecklist', icon: Sun, hint: 'Fill this before trading — set your daily plan' },
+  { href: '/trades', labelKey: 'nav.trades', icon: ArrowLeftRight, hint: 'All your buy/sell records in one place' },
+  { href: '/playbooks', labelKey: 'nav.playbooks', icon: BookCheck, hint: 'Checklists to follow before buying or selling' },
+  { href: '/review/weekly', labelKey: 'nav.weeklyReview', icon: CalendarCheck, hint: 'Your weekly report card — what worked, what didn\'t' },
+  { href: '/learn', labelKey: 'nav.learn', icon: Brain, hint: 'Learn stock market basics step by step' },
+  { href: '/datalab', labelKey: 'nav.datalab', icon: FlaskConical, hint: 'Upload trade files and see charts' },
+  { href: '/dashboard/watchlist', labelKey: 'nav.watchlist', icon: Eye, hint: 'Stocks you\'re keeping an eye on' },
+  { href: '/settings', labelKey: 'nav.settings', icon: Settings, hint: 'Connect broker, change preferences' },
 ];
 
 const LEGAL_ITEMS: { href: string; labelKey: TranslationKey; icon: typeof Scale }[] = [
@@ -65,15 +65,19 @@ export function Sidebar() {
               <Link
                 key={item.labelKey}
                 href={item.href}
+                title={item.hint}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm no-underline transition-colors',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm no-underline transition-colors group',
                   isActive
                     ? 'bg-white/[0.08] text-[#fafaff]'
                     : 'text-[#6b6b8a] hover:text-[#b0b0c8] hover:bg-white/[0.04]'
                 )}
               >
                 <item.icon size={18} />
-                {t(item.labelKey)}
+                <div className="flex flex-col">
+                  <span>{t(item.labelKey)}</span>
+                  <span className="text-[9px] text-[#4a4a6a] leading-tight group-hover:text-[#6b6b8a] transition-colors">{item.hint}</span>
+                </div>
               </Link>
             );
           })}
