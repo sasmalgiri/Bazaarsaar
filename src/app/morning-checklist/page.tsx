@@ -8,6 +8,7 @@ import {
   Sun, CheckCircle2, Circle, RotateCcw, Save, TrendingUp,
   TrendingDown, Minus, Brain, AlertTriangle, Clock
 } from 'lucide-react';
+import { MarketIntel } from '@/components/dashboard/MarketIntel';
 
 interface CheckItem {
   id: string;
@@ -141,6 +142,11 @@ export default function MorningChecklistPage() {
             Reset
           </button>
         </div>
+      </div>
+
+      {/* Market Intelligence — real data for prep */}
+      <div className="mb-5">
+        <MarketIntel />
       </div>
 
       {/* Quick Check for Advanced Users */}
