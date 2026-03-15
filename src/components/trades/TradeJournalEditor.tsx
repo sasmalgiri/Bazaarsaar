@@ -13,13 +13,13 @@ interface Attachment {
   file_name: string;
 }
 
-const EMOTIONS: { value: EmotionTag; label: string; emoji: string }[] = [
-  { value: 'confident', label: 'Confident', emoji: '\uD83D\uDE0E' },
-  { value: 'neutral', label: 'Neutral', emoji: '\uD83D\uDE10' },
-  { value: 'fearful', label: 'Fearful', emoji: '\uD83D\uDE28' },
-  { value: 'greedy', label: 'Greedy', emoji: '\uD83E\uDD11' },
-  { value: 'fomo', label: 'FOMO', emoji: '\uD83D\uDE30' },
-  { value: 'revenge', label: 'Revenge', emoji: '\uD83D\uDE21' },
+const EMOTIONS: { value: EmotionTag; label: string; labelHi: string; emoji: string; desc: string }[] = [
+  { value: 'confident', label: 'Confident', labelHi: 'आत्मविश्वास', emoji: '\uD83D\uDE0E', desc: 'I had a clear plan' },
+  { value: 'neutral', label: 'Neutral', labelHi: 'सामान्य', emoji: '\uD83D\uDE10', desc: 'No strong feeling' },
+  { value: 'fearful', label: 'Fearful', labelHi: 'डर', emoji: '\uD83D\uDE28', desc: 'Scared of losing' },
+  { value: 'greedy', label: 'Greedy', labelHi: 'लालच', emoji: '\uD83E\uDD11', desc: 'Wanted too much profit' },
+  { value: 'fomo', label: 'FOMO', labelHi: 'छूटने का डर', emoji: '\uD83D\uDE30', desc: 'Everyone else is buying' },
+  { value: 'revenge', label: 'Revenge', labelHi: 'बदला', emoji: '\uD83D\uDE21', desc: 'Angry after a loss' },
 ];
 
 interface TradeJournalEditorProps {
@@ -258,49 +258,53 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
       <div className="space-y-5">
         {/* Thesis */}
         <div>
-          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
-            Trade Thesis
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-1">
+            Why did you take this trade?
           </label>
+          <p className="text-[10px] text-[#4a4a6a] mb-2">आपने यह ट्रेड क्यों लिया? अपने कारण लिखें — 1-2 लाइन काफ़ी है।</p>
           <textarea
             value={thesis}
             onChange={(e) => setThesis(e.target.value)}
-            placeholder="Why did you take this trade? What was your reasoning?"
+            placeholder="e.g., RELIANCE broke resistance at ₹2,380 with high volume / RELIANCE ने ₹2,380 का resistance तोड़ा"
             className="w-full px-4 py-3 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-green-500/30 resize-none min-h-[80px]"
           />
         </div>
 
-        {/* Invalidation */}
+        {/* Invalidation / Exit Plan */}
         <div>
-          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
-            Invalidation
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-1">
+            Exit Plan — When would you get out?
           </label>
+          <p className="text-[10px] text-[#4a4a6a] mb-2">कब बाहर निकलेंगे? अपना stop-loss या target लिखें।</p>
           <textarea
             value={invalidation}
             onChange={(e) => setInvalidation(e.target.value)}
-            placeholder="What would make this trade wrong? When would you exit?"
+            placeholder="e.g., Exit if price falls below ₹2,350 (my stop-loss) / ₹2,350 से नीचे गया तो बाहर"
             className="w-full px-4 py-3 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-green-500/30 resize-none min-h-[60px]"
           />
         </div>
 
         {/* Emotion */}
         <div>
-          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
-            Emotional State
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-1">
+            How were you feeling?
           </label>
+          <p className="text-[10px] text-[#4a4a6a] mb-2">ट्रेड लेते वक्त कैसा महसूस कर रहे थे? यह बाद में patterns दिखाएगा।</p>
           <div className="flex flex-wrap gap-2">
             {EMOTIONS.map((em) => (
               <button
                 key={em.value}
                 type="button"
                 onClick={() => setEmotion(emotion === em.value ? '' : em.value)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border cursor-pointer transition-all ${
+                title={em.desc}
+                className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg text-xs border cursor-pointer transition-all ${
                   emotion === em.value
                     ? 'border-green-500/40 bg-green-500/10 text-green-500'
                     : 'border-white/[0.06] bg-[#11111a] text-[#6b6b8a] hover:bg-white/[0.04]'
                 }`}
               >
-                <span>{em.emoji}</span>
-                {em.label}
+                <span className="flex items-center gap-1"><span>{em.emoji}</span> {em.label}</span>
+                <span className="text-[9px] text-[#4a4a6a]">{em.labelHi}</span>
               </button>
             ))}
           </div>
@@ -308,9 +312,10 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
 
         {/* Tags */}
         <div>
-          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-1">
             Tags
           </label>
+          <p className="text-[10px] text-[#4a4a6a] mb-2">Label your trade type (e.g., Breakout, Gap Up, Swing) / ट्रेड का type label करें</p>
           <div className="flex flex-wrap gap-2 mb-2">
             {availableTags.map((tag) => (
               <button
@@ -350,9 +355,10 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
         {/* Playbook Selection */}
         {playbooks.length > 0 && (
           <div>
-            <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
-              Playbook
+            <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-1">
+              Playbook (Trading Checklist)
             </label>
+            <p className="text-[10px] text-[#4a4a6a] mb-2">Which checklist did you follow for this trade? / कौन सी checklist follow की?</p>
             <select
               value={selectedPlaybookId}
               onChange={(e) => handlePlaybookChange(e.target.value)}
@@ -416,9 +422,10 @@ export function TradeJournalEditor({ tradeId }: TradeJournalEditorProps) {
 
         {/* Rating */}
         <div>
-          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
-            Trade Rating
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-1">
+            How well did you execute? (Trade Rating)
           </label>
+          <p className="text-[10px] text-[#4a4a6a] mb-2">Did you follow your rules? 5 stars = perfect execution / क्या अपने नियम follow किए?</p>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <button

@@ -93,10 +93,11 @@ export function BehavioralInsights() {
       {/* Mistake Patterns — the "why am I losing" answer */}
       {mistakePatterns.length > 0 && (
         <GlassCard className="p-5">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-1">
             <AlertTriangle size={16} className="text-red-500" />
             <h3 className="text-sm font-semibold text-[#d4d4e8]">Mistake Patterns Detected</h3>
           </div>
+          <p className="text-[10px] text-[#4a4a6a] mb-4">These emotions are costing you money. Tag more trades to improve accuracy. / ये भावनाएं आपके पैसे डुबो रही हैं।</p>
           <div className="space-y-3">
             {mistakePatterns.map((mp) => (
               <div key={mp.emotion} className="p-3 rounded-lg bg-red-500/[0.06] border border-red-500/10">
@@ -129,10 +130,11 @@ export function BehavioralInsights() {
       {/* Emotion → P&L Breakdown */}
       {taggedEmotions.length > 0 && (
         <GlassCard className="p-5">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-1">
             <Target size={16} className="text-cyan-500" />
             <h3 className="text-sm font-semibold text-[#d4d4e8]">Emotion → P&L Breakdown</h3>
           </div>
+          <p className="text-[10px] text-[#4a4a6a] mb-4">Which feelings make you money and which cost you? / कौन सी भावनाएं पैसे बनाती हैं, कौन सी डुबोती हैं?</p>
           <div className="space-y-2">
             {taggedEmotions
               .sort(([, a], [, b]) => b.avgPnl - a.avgPnl)
@@ -170,10 +172,11 @@ export function BehavioralInsights() {
       {/* Discipline: Checklist followed vs skipped */}
       {(disciplineInsight.followedChecklist.count > 0 || disciplineInsight.skippedChecklist.count > 0) && (
         <GlassCard className="p-5">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-1">
             <BookCheck size={16} className="text-green-500" />
             <h3 className="text-sm font-semibold text-[#d4d4e8]">Discipline Impact</h3>
           </div>
+          <p className="text-[10px] text-[#4a4a6a] mb-4">Does following your checklist actually help? See the proof. / Checklist follow करने से फ़ायदा होता है? सबूत देखें।</p>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-3 rounded-lg bg-green-500/[0.06] border border-green-500/10 text-center">
               <p className="text-[10px] text-[#6b6b8a] uppercase tracking-wider mb-2">Followed Checklist</p>

@@ -14,23 +14,28 @@ interface CheckItem {
   category: 'mindset' | 'market' | 'plan' | 'risk';
 }
 
-const DEFAULT_CHECKLIST: CheckItem[] = [
+interface CheckItemWithHelp extends CheckItem {
+  help?: string;
+  helpHi?: string;
+}
+
+const DEFAULT_CHECKLIST: CheckItemWithHelp[] = [
   // Mindset
   { id: 'sleep', label: 'I slept well and feel mentally sharp', category: 'mindset' },
-  { id: 'emotion', label: 'I am emotionally calm — no revenge/FOMO from yesterday', category: 'mindset' },
-  { id: 'goal', label: 'I have a clear daily P&L target and stop-loss limit', category: 'mindset' },
+  { id: 'emotion', label: 'I am emotionally calm — no revenge/FOMO from yesterday', category: 'mindset', help: 'Revenge = trading to recover losses. FOMO = buying because others are.', helpHi: 'Revenge = नुकसान वापस पाने के लिए trade। FOMO = दूसरे खरीद रहे तो मैं भी।' },
+  { id: 'goal', label: 'I have a clear daily P&L target and stop-loss limit', category: 'mindset', help: 'Decide max loss BEFORE market opens (e.g., ₹2,000). Hit it? Stop trading.', helpHi: 'बाज़ार खुलने से पहले max नुकसान तय करें (जैसे ₹2,000)। Hit हो? Trading बंद।' },
   // Market
-  { id: 'global', label: 'I checked global market cues (SGX Nifty, US markets, Asia)', category: 'market' },
-  { id: 'news', label: 'I reviewed today\'s news & events (RBI, results, expiry)', category: 'market' },
-  { id: 'fii', label: 'I checked FII/DII data and sector trends', category: 'market' },
+  { id: 'global', label: 'I checked global cues (Gift Nifty, US markets, Asia)', category: 'market', help: 'Gift Nifty (formerly SGX Nifty) shows where Indian market may open. Check before 9 AM.', helpHi: 'Gift Nifty बताता है कि भारतीय बाज़ार कहां खुल सकता है। सुबह 9 बजे से पहले check करें।' },
+  { id: 'news', label: 'I checked today\'s events (RBI policy, company results, expiry day)', category: 'market', help: 'Big events cause wild moves. Be cautious on RBI days, Budget, and Thursday (F&O expiry).', helpHi: 'बड़ी events से बाज़ार में तेज़ हलचल। RBI days, Budget, और गुरुवार (F&O expiry) पर सावधान रहें।' },
+  { id: 'fii', label: 'I checked FII/DII data and sector trends', category: 'market', help: 'FII = Foreign Institutional Investors (विदेशी संस्थान). DII = Domestic Institutional Investors (भारतीय संस्थान). Their buying/selling moves the market.', helpHi: 'FII = विदेशी संस्थागत निवेशक। DII = भारतीय संस्थागत निवेशक। इनकी खरीद-बिक्री बाज़ार चलाती है।' },
   // Plan
-  { id: 'levels', label: 'I have marked key support/resistance levels', category: 'plan' },
+  { id: 'levels', label: 'I have marked key price levels for my stocks', category: 'plan', help: 'Support = price where stock stops falling (buyers step in). Resistance = price where stock stops rising (sellers step in).', helpHi: 'Support = वो कीमत जहां stock गिरना बंद करता है। Resistance = वो कीमत जहां stock बढ़ना बंद करता है।' },
   { id: 'watchlist', label: 'My watchlist for today is ready (max 5 stocks)', category: 'plan' },
-  { id: 'setup', label: 'I know which setups I will trade today', category: 'plan' },
+  { id: 'setup', label: 'I know which setups I will trade today', category: 'plan', help: 'A setup = specific conditions that must be true before you buy/sell. No setup = no trade.', helpHi: 'Setup = खरीदने/बेचने से पहले कुछ conditions पूरी होनी चाहिए। कोई setup नहीं = कोई trade नहीं।' },
   // Risk
-  { id: 'size', label: 'My position sizing is within my risk rules', category: 'risk' },
-  { id: 'stoploss', label: 'I will place stop-loss on every trade', category: 'risk' },
-  { id: 'maxloss', label: 'I will stop trading if I hit my max daily loss', category: 'risk' },
+  { id: 'size', label: 'My position size is within my risk rules (1-2% per trade)', category: 'risk', help: 'Position sizing = how many shares to buy. Risk max 1-2% of your capital per trade.', helpHi: 'Position sizing = कितने shares खरीदें। एक trade में अपनी पूंजी का max 1-2% जोखिम लें।' },
+  { id: 'stoploss', label: 'I will place stop-loss on every trade', category: 'risk', help: 'Stop-loss = auto-exit price if trade goes wrong. Set it BEFORE entering the trade.', helpHi: 'Stop-loss = trade ग़लत जाए तो automatic exit price। Trade में enter करने से पहले लगाएं।' },
+  { id: 'maxloss', label: 'I will stop trading if I hit my max daily loss', category: 'risk', help: 'This prevents revenge trading. Hit your daily limit? Close the app. Tomorrow is a new day.', helpHi: 'यह revenge trading रोकता है। Daily limit hit? App बंद करो। कल नया दिन है।' },
 ];
 
 const CATEGORY_CONFIG = {
@@ -103,6 +108,7 @@ export default function MorningChecklistPage() {
           <Sun size={24} className="text-amber-500" />
           <div>
             <h1 className="text-xl font-bold text-[#fafaff]">Pre-Market Checklist</h1>
+            <p className="text-xs text-amber-500/70">बाज़ार खुलने से पहले — अपनी तैयारी जांचें</p>
             <p className="text-xs text-[#4a4a6a]">
               {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
@@ -162,27 +168,37 @@ export default function MorningChecklistPage() {
                 <span className="text-[10px] text-[#4a4a6a] ml-auto">{catChecked}/{items.length}</span>
               </div>
               <div className="space-y-2">
-                {items.map((item) => (
-                  <label
-                    key={item.id}
-                    className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-white/[0.02] transition-colors"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => toggle(item.id)}
-                      className="bg-transparent border-none cursor-pointer p-0 shrink-0"
+                {items.map((item) => {
+                  const itemHelp = item as CheckItemWithHelp;
+                  return (
+                  <div key={item.id}>
+                    <label
+                      className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-white/[0.02] transition-colors"
                     >
-                      {checked[item.id] ? (
-                        <CheckCircle2 size={18} className="text-green-500" />
-                      ) : (
-                        <Circle size={18} className="text-[#32324a]" />
-                      )}
-                    </button>
-                    <span className={`text-sm ${checked[item.id] ? 'text-[#6b6b8a] line-through' : 'text-[#d4d4e8]'}`}>
-                      {item.label}
-                    </span>
-                  </label>
-                ))}
+                      <button
+                        type="button"
+                        onClick={() => toggle(item.id)}
+                        className="bg-transparent border-none cursor-pointer p-0 shrink-0"
+                      >
+                        {checked[item.id] ? (
+                          <CheckCircle2 size={18} className="text-green-500" />
+                        ) : (
+                          <Circle size={18} className="text-[#32324a]" />
+                        )}
+                      </button>
+                      <span className={`text-sm ${checked[item.id] ? 'text-[#6b6b8a] line-through' : 'text-[#d4d4e8]'}`}>
+                        {item.label}
+                      </span>
+                    </label>
+                    {itemHelp.help && (
+                      <div className="ml-10 mb-1">
+                        <p className="text-[10px] text-[#4a4a6a] leading-relaxed">{itemHelp.help}</p>
+                        {itemHelp.helpHi && <p className="text-[10px] text-amber-500/50 leading-relaxed">{itemHelp.helpHi}</p>}
+                      </div>
+                    )}
+                  </div>
+                  );
+                })}
               </div>
             </GlassCard>
           );

@@ -138,6 +138,7 @@ export function QuickTradeLogger({ onTradeAdded }: QuickTradeLoggerProps) {
               <button
                 type="button"
                 onClick={() => setSegment('EQ')}
+                title="Equity — regular stock delivery or intraday"
                 className={`px-3 py-2 text-xs font-medium border-none cursor-pointer transition-colors ${
                   segment === 'EQ' ? 'bg-cyan-500/20 text-cyan-500' : 'bg-[#11111a] text-[#6b6b8a]'
                 }`}
@@ -147,6 +148,7 @@ export function QuickTradeLogger({ onTradeAdded }: QuickTradeLoggerProps) {
               <button
                 type="button"
                 onClick={() => setSegment('FO')}
+                title="Futures & Options — derivatives segment"
                 className={`px-3 py-2 text-xs font-medium border-none cursor-pointer transition-colors ${
                   segment === 'FO' ? 'bg-purple-500/20 text-purple-500' : 'bg-[#11111a] text-[#6b6b8a]'
                 }`}
@@ -155,6 +157,7 @@ export function QuickTradeLogger({ onTradeAdded }: QuickTradeLoggerProps) {
               </button>
             </div>
           </div>
+          <p className="text-[10px] text-[#4a4a6a] -mt-1">EQ = Stocks (शेयर) &nbsp;|&nbsp; F&O = Futures & Options (वायदा और विकल्प)</p>
 
           {/* Qty + Price */}
           <div className="flex gap-2">

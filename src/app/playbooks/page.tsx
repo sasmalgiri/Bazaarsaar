@@ -99,9 +99,12 @@ export default function PlaybooksPage() {
   return (
     <div className="max-w-5xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <BookCheck size={24} className="text-green-500" />
-          <h1 className="text-2xl font-bold text-[#fafaff]">Playbooks</h1>
+        <div>
+          <div className="flex items-center gap-3">
+            <BookCheck size={24} className="text-green-500" />
+            <h1 className="text-2xl font-bold text-[#fafaff]">Playbooks (Trading Checklists)</h1>
+          </div>
+          <p className="text-xs text-amber-500/70 mt-1 ml-9">ट्रेडिंग चेकलिस्ट — हर ट्रेड से पहले follow करें</p>
         </div>
         <button
           onClick={handleCreateCustom}
@@ -112,31 +115,32 @@ export default function PlaybooksPage() {
         </button>
       </div>
 
-      {/* What is a Playbook */}
-      {myPlaybooks.length === 0 && (
-        <GlassCard className="p-5 mb-8 border-green-500/10">
-          <h2 className="text-sm font-semibold text-[#d4d4e8] mb-2">What is a Playbook?</h2>
-          <p className="text-xs text-[#6b6b8a] leading-relaxed mb-3">
-            A playbook is your personal trading checklist — like a recipe for a specific trade setup.
-            Before entering a trade, you check off each step (setup identified, entry confirmed, risk defined, emotions in check).
-            Over time, BazaarSaar shows you which playbooks actually make you money and where you skip steps.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3 rounded-lg bg-white/[0.03]">
-              <p className="text-xs font-medium text-green-500 mb-1">1. Pick a template</p>
-              <p className="text-[11px] text-[#4a4a6a]">Choose a checklist that matches your trading style (breakout, swing, options).</p>
-            </div>
-            <div className="p-3 rounded-lg bg-white/[0.03]">
-              <p className="text-xs font-medium text-green-500 mb-1">2. Use it when journaling</p>
-              <p className="text-[11px] text-[#4a4a6a]">When you log a trade, select your playbook and check off each step you followed.</p>
-            </div>
-            <div className="p-3 rounded-lg bg-white/[0.03]">
-              <p className="text-xs font-medium text-green-500 mb-1">3. See what works</p>
-              <p className="text-[11px] text-[#4a4a6a]">After enough trades, see win rates and P&L per playbook. Data-driven improvement.</p>
-            </div>
+      {/* What is a Playbook — always visible */}
+      <GlassCard className="p-5 mb-8 border-green-500/10">
+        <h2 className="text-sm font-semibold text-[#d4d4e8] mb-1">What is a Playbook? / प्लेबुक क्या है?</h2>
+        <p className="text-xs text-[#6b6b8a] leading-relaxed mb-1">
+          A playbook is your personal trading checklist — like a <strong>recipe</strong> for a specific trade setup.
+          Just like a cook follows a recipe step-by-step, you follow your playbook before every trade.
+          Over time, BazaarSaar shows you which playbooks actually make you money and where you skip steps.
+        </p>
+        <p className="text-xs text-amber-500/70 leading-relaxed mb-3">
+          प्लेबुक आपकी ट्रेडिंग checklist है — जैसे खाना बनाने की recipe। हर ट्रेड से पहले इसे step-by-step follow करें। BazaarSaar दिखाएगा कि कौन सी playbook पैसे बनाती है और कहां आप steps छोड़ते हैं।
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="p-3 rounded-lg bg-white/[0.03]">
+            <p className="text-xs font-medium text-green-500 mb-1">1. Pick a template / टेम्पलेट चुनें</p>
+            <p className="text-[11px] text-[#4a4a6a]">Choose a ready-made checklist. Don&apos;t know which? Start with &quot;Breakout Trading&quot; — it&apos;s the simplest.</p>
           </div>
-        </GlassCard>
-      )}
+          <div className="p-3 rounded-lg bg-white/[0.03]">
+            <p className="text-xs font-medium text-green-500 mb-1">2. Use when journaling / जर्नल करते वक्त</p>
+            <p className="text-[11px] text-[#4a4a6a]">When you log a trade, select your playbook and check off each step you followed.</p>
+          </div>
+          <div className="p-3 rounded-lg bg-white/[0.03]">
+            <p className="text-xs font-medium text-green-500 mb-1">3. See what works / क्या काम करता है</p>
+            <p className="text-[11px] text-[#4a4a6a]">After 10+ trades, see win rates per playbook. Stop guessing, start knowing.</p>
+          </div>
+        </div>
+      </GlassCard>
 
       {/* My Playbooks */}
       <div className="mb-8">

@@ -187,7 +187,7 @@ export function AdvancedStats({ trades }: AdvancedStatsProps) {
   const cards = [
     {
       label: 'Profit Factor',
-      tooltip: 'Total profits divided by total losses. Above 1.5 is considered good.',
+      tooltip: 'Total profits ÷ total losses. Above 1.5 is good. Example: you made ₹15,000 and lost ₹10,000 → Profit Factor = 1.5. कुल मुनाफ़ा ÷ कुल नुकसान। 1.5 से ऊपर अच्छा।',
       value: profitFactor === Infinity ? 'No Losses' : profitFactor.toFixed(2),
       icon: Ratio,
       color:
@@ -199,7 +199,7 @@ export function AdvancedStats({ trades }: AdvancedStatsProps) {
     },
     {
       label: 'Expectancy',
-      tooltip: '(Win% x Avg Win) - (Loss% x Avg Loss). Positive means each trade is expected to be profitable on average.',
+      tooltip: 'Average profit/loss you can expect per trade. Positive = your system is profitable overall. Negative = you lose money on average per trade. प्रति ट्रेड औसत मुनाफ़ा/नुकसान।',
       value: formatINR(expectancy, true),
       sub: 'per trade',
       icon: Crosshair,
@@ -207,7 +207,7 @@ export function AdvancedStats({ trades }: AdvancedStatsProps) {
     },
     {
       label: 'Max Drawdown',
-      tooltip: 'Largest peak-to-trough decline in cumulative P&L. Lower is better.',
+      tooltip: 'Your biggest drop from peak profit. Like falling from a mountaintop — how far did you fall? Lower is better. आपके सबसे ज़्यादा मुनाफ़े से सबसे बड़ी गिरावट। कम होना अच्छा।',
       value: formatINR(maxDrawdown, true),
       sub: maxDrawdownPct > 0 ? `${maxDrawdownPct.toFixed(1)}% from peak` : undefined,
       icon: TrendingDown,
@@ -252,7 +252,7 @@ export function AdvancedStats({ trades }: AdvancedStatsProps) {
     },
     {
       label: 'Sharpe Ratio',
-      tooltip: 'Risk-adjusted return: (avg daily return / std dev) x sqrt(252). Above 1 is decent, above 2 is excellent.',
+      tooltip: 'Measures how much return you get for the risk you take. Above 1 = decent, above 2 = excellent. Think of it as "reward per unit of risk." जितना जोखिम लिया, उसके मुकाबले कितना return मिला।',
       value: sharpeRatio.toFixed(2),
       icon: Activity,
       color:
@@ -267,10 +267,11 @@ export function AdvancedStats({ trades }: AdvancedStatsProps) {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 mb-1">
         <BarChart3 size={16} className="text-cyan-500" />
         <h2 className="text-sm font-semibold text-[#d4d4e8]">Advanced Statistics</h2>
       </div>
+      <p className="text-[10px] text-[#4a4a6a] mb-2">Hover/tap on any label to see what it means. किसी भी label पर hover/tap करें — मतलब दिखेगा।</p>
 
       {/* Stat Cards Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

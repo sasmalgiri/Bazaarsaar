@@ -5,7 +5,7 @@ export const PERSONA_CONFIGS: Record<PersonaId, PersonaConfig> = {
     id: 'swing_trader',
     label: 'Swing Trader',
     labelHindi: 'स्विंग ट्रेडर',
-    description: 'Short-term momentum, breakouts, and technical setups (1\u201330 days)',
+    description: 'Buy and sell within 1-30 days based on price patterns and charts',
     icon: '\u26A1',
     tagline: 'Ride the momentum. Capture the move.',
     gradient: 'from-cyan-500/20 via-cyan-400/5 to-transparent',
@@ -19,7 +19,7 @@ export const PERSONA_CONFIGS: Record<PersonaId, PersonaConfig> = {
     id: 'investor',
     label: 'Long-Term Investor',
     labelHindi: 'दीर्घकालिक निवेशक',
-    description: 'Fundamentals, valuations, and compounding wealth (1+ years)',
+    description: 'Buy quality stocks and hold for 1+ years. Best for beginners — lowest risk.',
     icon: '\uD83C\uDFE6',
     tagline: 'Build wealth. Think in decades.',
     gradient: 'from-amber-500/20 via-amber-400/5 to-transparent',
@@ -33,7 +33,7 @@ export const PERSONA_CONFIGS: Record<PersonaId, PersonaConfig> = {
     id: 'options_trader',
     label: 'Options Trader',
     labelHindi: 'ऑप्शंस ट्रेडर',
-    description: 'Greeks, IV, OI analysis, and strategy building',
+    description: 'Trade Futures & Options (F&O). Advanced — 93% lose money here (SEBI data). For experienced traders only.',
     icon: '\uD83C\uDFAF',
     tagline: 'Master the asymmetry. Trade the edge.',
     gradient: 'from-purple-500/20 via-purple-400/5 to-transparent',
@@ -64,7 +64,7 @@ export const STARTER_PACKS: Record<PersonaId, StarterPack[]> = {
 };
 
 export const ONBOARDING_FEATURES = [
-  { emoji: '\uD83D\uDCDD', title: 'Trade Journal', desc: 'Log thesis, emotions, and checklists for every trade.' },
-  { emoji: '\uD83D\uDCCA', title: 'Weekly Review', desc: 'Descriptive analytics — win rate, P&L, patterns.' },
-  { emoji: '\uD83D\uDD17', title: 'Broker Sync', desc: 'Connect Zerodha or import CSV. Auto-sync trades.' },
+  { emoji: '\uD83D\uDCDD', title: 'Trade Journal', desc: 'Write why you took each trade and how you felt. Your personal trading diary.' },
+  { emoji: '\uD83D\uDCCA', title: 'Weekly Review', desc: 'See your week\'s results — wins, losses, patterns. Spend 15 min every Sunday.' },
+  { emoji: '\uD83D\uDD17', title: 'Broker Sync', desc: 'Connect Zerodha or import CSV from Groww, Angel One, Upstox. Auto-sync trades.' },
 ];
