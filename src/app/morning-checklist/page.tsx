@@ -98,6 +98,12 @@ export default function MorningChecklistPage() {
     localStorage.removeItem(`bazaarsaar-morning-${today}`);
   };
 
+  const handleQuickCheck = () => {
+    const allChecked: Record<string, boolean> = {};
+    DEFAULT_CHECKLIST.forEach((item) => { allChecked[item.id] = true; });
+    setChecked(allChecked);
+  };
+
   const categories = ['mindset', 'market', 'plan', 'risk'] as const;
 
   return (
@@ -130,6 +136,24 @@ export default function MorningChecklistPage() {
           </button>
         </div>
       </div>
+
+      {/* Quick Check for Advanced Users */}
+      {checkedCount < totalCount && (
+        <div className="flex items-center justify-between p-3 mb-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+          <div>
+            <p className="text-xs text-[#6b6b8a]">Already done your prep? Check all items at once.</p>
+            <p className="text-[10px] text-amber-500/40" lang="hi">तैयारी हो चुकी है? सब items एक बार में check करें।</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleQuickCheck}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-[#d4d4e8] border border-white/[0.08] bg-transparent cursor-pointer hover:bg-white/[0.04] transition-colors whitespace-nowrap"
+          >
+            <CheckCircle2 size={13} />
+            Check All
+          </button>
+        </div>
+      )}
 
       {/* Progress Bar */}
       <GlassCard className="p-4 mb-5">
@@ -296,7 +320,7 @@ export default function MorningChecklistPage() {
       </GlassCard>
 
       {/* Save */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 mb-3">
         <button
           type="button"
           onClick={handleSave}
@@ -312,6 +336,20 @@ export default function MorningChecklistPage() {
           </span>
         )}
       </div>
+
+      {/* Skip for advanced users */}
+      {!todayDone && (
+        <button
+          type="button"
+          onClick={() => {
+            handleQuickCheck();
+            setTimeout(handleSave, 100);
+          }}
+          className="text-xs text-[#4a4a6a] bg-transparent border-none cursor-pointer hover:text-[#6b6b8a] underline"
+        >
+          I already did my prep — skip checklist & save &rarr;
+        </button>
+      )}
     </div>
   );
 }
