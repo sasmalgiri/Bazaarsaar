@@ -6,6 +6,10 @@
   ],
   "crons": [
     {
+      "path": "/api/cron/daily-prep",
+      "schedule": "0 2 * * 1-5"
+    },
+    {
       "path": "/api/cron/weekly-report",
       "schedule": "0 18 * * 5"
     },
