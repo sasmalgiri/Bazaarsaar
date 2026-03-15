@@ -9,8 +9,12 @@ export interface DashboardWidget {
 
 const DEFAULT_WIDGETS: DashboardWidget[] = [
   { id: 'kpis', label: 'KPI Cards', enabled: true },
+  { id: 'advancedStats', label: 'Advanced Stats', enabled: true },
+  { id: 'aiInsights', label: 'AI Insights', enabled: true },
   { id: 'behavioral', label: 'Behavioral Insights', enabled: true },
+  { id: 'achievements', label: 'Achievements', enabled: true },
   { id: 'playbooks', label: 'Playbook Comparison', enabled: true },
+  { id: 'fnoAnalytics', label: 'Segment Analytics', enabled: true },
   { id: 'broker', label: 'Broker Connection', enabled: true },
   { id: 'equity', label: 'Equity Curve', enabled: true },
   { id: 'pnlSymbol', label: 'P&L by Symbol', enabled: true },

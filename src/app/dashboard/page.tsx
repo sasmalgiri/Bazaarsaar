@@ -7,12 +7,17 @@ import { createClient } from '@/lib/supabase/client';
 import { PersonaHeader } from '@/components/dashboard/PersonaHeader';
 import { WatchlistCard } from '@/components/dashboard/WatchlistCard';
 import { KPICards } from '@/components/dashboard/KPICards';
+import { AdvancedStats } from '@/components/dashboard/AdvancedStats';
+import { AIInsights } from '@/components/dashboard/AIInsights';
+import { Achievements } from '@/components/dashboard/Achievements';
+import { FnOAnalytics } from '@/components/dashboard/FnOAnalytics';
 import { EquityCurve } from '@/components/dashboard/EquityCurve';
 import { RecentTradesTable } from '@/components/dashboard/RecentTradesTable';
 import { PnlBySymbol } from '@/components/dashboard/PnlBySymbol';
 import { PnlCalendarHeatmap } from '@/components/dashboard/PnlCalendarHeatmap';
 import { BehavioralInsights } from '@/components/dashboard/BehavioralInsights';
 import { PlaybookComparison } from '@/components/dashboard/PlaybookComparison';
+import { QuickTradeLogger } from '@/components/trades/QuickTradeLogger';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { useDashboardStore } from '@/lib/store/dashboardStore';
 import { Link2, SlidersHorizontal, RotateCcw, Brain } from 'lucide-react';
@@ -27,6 +32,7 @@ interface Trade {
   net_pnl?: number;
   pnl?: number;
   traded_at?: string;
+  segment?: string;
 }
 
 interface BrokerConnection {
@@ -62,7 +68,7 @@ export default function DashboardPage() {
       const [{ data: tradeData }, { data: brokerData }] = await Promise.all([
         supabase
           .from('trade')
-          .select('id, symbol, side, price, quantity, net_pnl, pnl, traded_at')
+          .select('id, symbol, side, price, quantity, net_pnl, pnl, traded_at, segment')
           .eq('user_id', user.id)
           .order('traded_at', { ascending: true }),
         supabase
@@ -191,6 +197,35 @@ export default function DashboardPage() {
         ) : null
       )}
 
+      {/* Advanced Stats */}
+      {isEnabled('advancedStats') && hasTrades && (
+        <div className="mb-5">
+          <AdvancedStats trades={trades} />
+        </div>
+      )}
+
+      {/* AI Insights */}
+      {isEnabled('aiInsights') && hasTrades && (
+        <div className="mb-5">
+          <AIInsights trades={trades} />
+        </div>
+      )}
+
+      {/* Achievements */}
+      {isEnabled('achievements') && (
+        <div className="mb-5">
+          <Achievements
+            totalTrades={kpiData.totalTrades}
+            journaledCount={0}
+            currentStreak={kpiData.currentStreak}
+            journalStreak={0}
+            winRate={kpiData.totalTrades > 0 ? (kpiData.winCount / kpiData.totalTrades) * 100 : 0}
+            playbooks={0}
+            checklistCompletion={0}
+          />
+        </div>
+      )}
+
       {/* Main grid — Behavioral Insights first */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         {/* Behavioral Intelligence — PRIMARY content */}
@@ -199,6 +234,9 @@ export default function DashboardPage() {
             <BehavioralInsights />
           </div>
         )}
+
+        {/* F&O / Segment Analytics */}
+        {isEnabled('fnoAnalytics') && hasTrades && <FnOAnalytics trades={trades} />}
 
         {/* Playbook Comparison */}
         {isEnabled('playbooks') && <PlaybookComparison />}
@@ -267,6 +305,9 @@ export default function DashboardPage() {
           <RecentTradesTable trades={[...trades].reverse()} />
         </div>
       )}
+
+      {/* Quick Trade Logger FAB */}
+      <QuickTradeLogger />
     </div>
   );
 }

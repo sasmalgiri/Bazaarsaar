@@ -4,6 +4,7 @@
   "description": "Post-trade review and behavioral improvement platform for Indian traders. Journal emotions, track playbook adherence, and improve discipline.",
   "start_url": "/dashboard",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#0a0a0f",
   "theme_color": "#22c55e",
   "icons": [
@@ -11,7 +12,50 @@
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "categories": ["finance", "business", "productivity"]
+  "categories": ["finance", "business", "productivity"],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "BazaarSaar Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/dashboard",
+      "description": "View trading dashboard"
+    },
+    {
+      "name": "Trades",
+      "short_name": "Trades",
+      "url": "/trades",
+      "description": "View trade log"
+    },
+    {
+      "name": "Morning Checklist",
+      "short_name": "Checklist",
+      "url": "/morning-checklist",
+      "description": "Pre-market preparation"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }

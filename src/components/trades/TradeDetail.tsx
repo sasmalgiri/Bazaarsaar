@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
 import { TradeJournalEditor } from './TradeJournalEditor';
+import { TradePriceChart } from './TradePriceChart';
+import { RuleBreakAlert } from './RuleBreakAlert';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import type { Trade } from '@/types';
@@ -92,6 +94,17 @@ export function TradeDetail({ tradeId }: TradeDetailProps) {
           </div>
         </div>
       </GlassCard>
+
+      {/* Rule Break Alerts */}
+      <RuleBreakAlert tradeId={tradeId} symbol={trade.symbol} side={trade.side} />
+
+      {/* Price Chart with Entry/Exit Marker */}
+      <TradePriceChart
+        symbol={trade.symbol}
+        side={trade.side}
+        price={Number(trade.price)}
+        tradedAt={trade.traded_at}
+      />
 
       {/* Journal Editor */}
       <TradeJournalEditor tradeId={tradeId} />

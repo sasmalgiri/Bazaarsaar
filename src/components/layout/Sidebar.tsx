@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Eye, ArrowLeftRight, CalendarCheck, Settings, Scale, Shield, BookOpen, BookCheck, FlaskConical, Brain } from 'lucide-react';
+import { LayoutDashboard, Eye, ArrowLeftRight, CalendarCheck, Settings, Scale, Shield, BookOpen, BookCheck, FlaskConical, Brain, Sun } from 'lucide-react';
 import { usePersonaStore } from '@/lib/store/personaStore';
 import { PERSONA_CONFIGS } from '@/lib/persona/definitions';
 import { useTranslation } from '@/lib/i18n/useTranslation';
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: typeof LayoutDashboard }[] = [
   { href: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { href: '/morning-checklist', labelKey: 'nav.morningChecklist', icon: Sun },
   { href: '/trades', labelKey: 'nav.trades', icon: ArrowLeftRight },
   { href: '/playbooks', labelKey: 'nav.playbooks', icon: BookCheck },
   { href: '/review/weekly', labelKey: 'nav.weeklyReview', icon: CalendarCheck },

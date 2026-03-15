@@ -1,0 +1,284 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { createClient } from '@/lib/supabase/client';
+import {
+  Sun, CheckCircle2, Circle, RotateCcw, Save, TrendingUp,
+  TrendingDown, Minus, Brain, AlertTriangle, Clock
+} from 'lucide-react';
+
+interface CheckItem {
+  id: string;
+  label: string;
+  category: 'mindset' | 'market' | 'plan' | 'risk';
+}
+
+const DEFAULT_CHECKLIST: CheckItem[] = [
+  // Mindset
+  { id: 'sleep', label: 'I slept well and feel mentally sharp', category: 'mindset' },
+  { id: 'emotion', label: 'I am emotionally calm — no revenge/FOMO from yesterday', category: 'mindset' },
+  { id: 'goal', label: 'I have a clear daily P&L target and stop-loss limit', category: 'mindset' },
+  // Market
+  { id: 'global', label: 'I checked global market cues (SGX Nifty, US markets, Asia)', category: 'market' },
+  { id: 'news', label: 'I reviewed today\'s news & events (RBI, results, expiry)', category: 'market' },
+  { id: 'fii', label: 'I checked FII/DII data and sector trends', category: 'market' },
+  // Plan
+  { id: 'levels', label: 'I have marked key support/resistance levels', category: 'plan' },
+  { id: 'watchlist', label: 'My watchlist for today is ready (max 5 stocks)', category: 'plan' },
+  { id: 'setup', label: 'I know which setups I will trade today', category: 'plan' },
+  // Risk
+  { id: 'size', label: 'My position sizing is within my risk rules', category: 'risk' },
+  { id: 'stoploss', label: 'I will place stop-loss on every trade', category: 'risk' },
+  { id: 'maxloss', label: 'I will stop trading if I hit my max daily loss', category: 'risk' },
+];
+
+const CATEGORY_CONFIG = {
+  mindset: { label: 'Mindset Check', icon: Brain, color: 'text-purple-500', border: 'border-purple-500/20' },
+  market: { label: 'Market Prep', icon: TrendingUp, color: 'text-cyan-500', border: 'border-cyan-500/20' },
+  plan: { label: 'Trading Plan', icon: Clock, color: 'text-amber-500', border: 'border-amber-500/20' },
+  risk: { label: 'Risk Management', icon: AlertTriangle, color: 'text-red-500', border: 'border-red-500/20' },
+};
+
+type MarketBias = 'bullish' | 'bearish' | 'neutral' | '';
+
+export default function MorningChecklistPage() {
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [bias, setBias] = useState<MarketBias>('');
+  const [notes, setNotes] = useState('');
+  const [maxLoss, setMaxLoss] = useState('');
+  const [targetProfit, setTargetProfit] = useState('');
+  const [saved, setSaved] = useState(false);
+  const [todayDone, setTodayDone] = useState(false);
+
+  const today = new Date().toISOString().split('T')[0];
+
+  useEffect(() => {
+    // Load today's checklist from localStorage
+    const stored = localStorage.getItem(`bazaarsaar-morning-${today}`);
+    if (stored) {
+      const data = JSON.parse(stored);
+      setChecked(data.checked || {});
+      setBias(data.bias || '');
+      setNotes(data.notes || '');
+      setMaxLoss(data.maxLoss || '');
+      setTargetProfit(data.targetProfit || '');
+      setTodayDone(true);
+    }
+  }, [today]);
+
+  const toggle = (id: string) => {
+    setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const checkedCount = Object.values(checked).filter(Boolean).length;
+  const totalCount = DEFAULT_CHECKLIST.length;
+  const completion = Math.round((checkedCount / totalCount) * 100);
+
+  const handleSave = () => {
+    const data = { checked, bias, notes, maxLoss, targetProfit, date: today };
+    localStorage.setItem(`bazaarsaar-morning-${today}`, JSON.stringify(data));
+    setSaved(true);
+    setTodayDone(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleReset = () => {
+    setChecked({});
+    setBias('');
+    setNotes('');
+    setMaxLoss('');
+    setTargetProfit('');
+    setTodayDone(false);
+    localStorage.removeItem(`bazaarsaar-morning-${today}`);
+  };
+
+  const categories = ['mindset', 'market', 'plan', 'risk'] as const;
+
+  return (
+    <div className="max-w-3xl mx-auto animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Sun size={24} className="text-amber-500" />
+          <div>
+            <h1 className="text-xl font-bold text-[#fafaff]">Pre-Market Checklist</h1>
+            <p className="text-xs text-[#4a4a6a]">
+              {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {todayDone && (
+            <span className="text-[10px] text-green-500 bg-green-500/10 px-2 py-1 rounded flex items-center gap-1">
+              <CheckCircle2 size={10} /> Completed
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleReset}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-[#6b6b8a] border border-white/[0.06] bg-transparent cursor-pointer hover:bg-white/[0.04] transition-colors"
+          >
+            <RotateCcw size={12} />
+            Reset
+          </button>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <GlassCard className="p-4 mb-5">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs text-[#6b6b8a]">Readiness Score</span>
+          <span className={`text-lg font-bold font-mono ${completion >= 80 ? 'text-green-500' : completion >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
+            {completion}%
+          </span>
+        </div>
+        <div className="w-full bg-white/[0.06] rounded-full h-2.5 overflow-hidden">
+          <div
+            className={`h-2.5 rounded-full transition-all duration-500 ${completion >= 80 ? 'bg-green-500' : completion >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+            style={{ width: `${completion}%` }}
+          />
+        </div>
+        <p className="text-[10px] text-[#4a4a6a] mt-2">
+          {checkedCount}/{totalCount} items checked.
+          {completion < 80 && ' Complete at least 80% before trading.'}
+          {completion >= 80 && completion < 100 && ' Almost ready!'}
+          {completion === 100 && ' You\'re fully prepared. Trade with confidence!'}
+        </p>
+      </GlassCard>
+
+      {/* Checklist by Category */}
+      <div className="space-y-4 mb-6">
+        {categories.map((cat) => {
+          const config = CATEGORY_CONFIG[cat];
+          const items = DEFAULT_CHECKLIST.filter((i) => i.category === cat);
+          const catChecked = items.filter((i) => checked[i.id]).length;
+
+          return (
+            <GlassCard key={cat} className={`p-5 border-l-4 ${config.border}`}>
+              <div className="flex items-center gap-2 mb-3">
+                <config.icon size={16} className={config.color} />
+                <h3 className="text-sm font-semibold text-[#d4d4e8]">{config.label}</h3>
+                <span className="text-[10px] text-[#4a4a6a] ml-auto">{catChecked}/{items.length}</span>
+              </div>
+              <div className="space-y-2">
+                {items.map((item) => (
+                  <label
+                    key={item.id}
+                    className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-white/[0.02] transition-colors"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggle(item.id)}
+                      className="bg-transparent border-none cursor-pointer p-0 shrink-0"
+                    >
+                      {checked[item.id] ? (
+                        <CheckCircle2 size={18} className="text-green-500" />
+                      ) : (
+                        <Circle size={18} className="text-[#32324a]" />
+                      )}
+                    </button>
+                    <span className={`text-sm ${checked[item.id] ? 'text-[#6b6b8a] line-through' : 'text-[#d4d4e8]'}`}>
+                      {item.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </GlassCard>
+          );
+        })}
+      </div>
+
+      {/* Market Bias */}
+      <GlassCard className="p-5 mb-4">
+        <h3 className="text-sm font-semibold text-[#d4d4e8] mb-3">Today&apos;s Market Bias</h3>
+        <div className="flex gap-3">
+          {[
+            { value: 'bullish' as const, label: 'Bullish', icon: TrendingUp, color: 'green' },
+            { value: 'neutral' as const, label: 'Neutral', icon: Minus, color: 'amber' },
+            { value: 'bearish' as const, label: 'Bearish', icon: TrendingDown, color: 'red' },
+          ].map((b) => (
+            <button
+              key={b.value}
+              type="button"
+              onClick={() => setBias(bias === b.value ? '' : b.value)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm border cursor-pointer transition-all ${
+                bias === b.value
+                  ? `border-${b.color}-500/40 bg-${b.color}-500/10 text-${b.color}-500`
+                  : 'border-white/[0.06] bg-[#11111a] text-[#6b6b8a] hover:bg-white/[0.04]'
+              }`}
+            >
+              <b.icon size={14} />
+              {b.label}
+            </button>
+          ))}
+        </div>
+      </GlassCard>
+
+      {/* Daily Limits */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <GlassCard className="p-4">
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
+            Max Daily Loss
+          </label>
+          <div className="flex items-center gap-1">
+            <span className="text-sm text-red-500">₹</span>
+            <input
+              type="number"
+              value={maxLoss}
+              onChange={(e) => setMaxLoss(e.target.value)}
+              placeholder="5000"
+              className="w-full px-3 py-2 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-red-500/30"
+            />
+          </div>
+        </GlassCard>
+        <GlassCard className="p-4">
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
+            Target Profit
+          </label>
+          <div className="flex items-center gap-1">
+            <span className="text-sm text-green-500">₹</span>
+            <input
+              type="number"
+              value={targetProfit}
+              onChange={(e) => setTargetProfit(e.target.value)}
+              placeholder="3000"
+              className="w-full px-3 py-2 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-green-500/30"
+            />
+          </div>
+        </GlassCard>
+      </div>
+
+      {/* Notes */}
+      <GlassCard className="p-5 mb-5">
+        <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
+          Today&apos;s Game Plan
+        </label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="What setups will you look for? Key levels? Any events to watch?"
+          className="w-full px-4 py-3 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-green-500/30 resize-none min-h-[80px]"
+        />
+      </GlassCard>
+
+      {/* Save */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleSave}
+          className="flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium text-[#0d0d14] bg-green-500 border-none cursor-pointer hover:bg-green-400 transition-colors"
+        >
+          <Save size={16} />
+          {saved ? 'Saved!' : 'Save & Start Trading'}
+        </button>
+        {completion < 80 && (
+          <span className="text-xs text-amber-500 flex items-center gap-1">
+            <AlertTriangle size={12} />
+            Low readiness — consider completing more items
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
