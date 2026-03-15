@@ -148,13 +148,19 @@ export default function Home() {
           <p className="text-lg text-[#6b6b8a] mb-1" lang="hi">
             बाज़ारसार
           </p>
-          <h2 className="text-xl md:text-2xl text-[#9090aa] max-w-2xl mb-3 font-normal">
+          <h2 className="text-xl md:text-2xl text-[#9090aa] max-w-2xl mb-1 font-normal">
             Free Trade Journal &amp; Behavioral Analytics for Indian Traders
           </h2>
-          <p className="text-sm text-[#6b6b8a] max-w-xl mb-8">
+          <p className="text-sm text-amber-500/80 mb-3" lang="hi">
+            मुफ़्त ट्रेड जर्नल — अपनी गलतियों से सीखें, अनुशासन बनाएं
+          </p>
+          <p className="text-sm text-[#6b6b8a] max-w-xl mb-2">
             Not another trading terminal. BazaarSaar helps you answer {'"Why am I losing money?"'}
             {' '}with emotion tracking, playbook adherence, and mistake pattern detection.
             Works with <strong className="text-[#9090aa]">Zerodha</strong>, <strong className="text-[#9090aa]">Groww</strong>, <strong className="text-[#9090aa]">Angel One</strong> &amp; <strong className="text-[#9090aa]">Upstox</strong>.
+          </p>
+          <p className="text-xs text-green-500 mb-8 font-medium">
+            100% Free — No hidden charges, no premium plan / कोई छिपे शुल्क नहीं, हमेशा मुफ़्त
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mb-16">

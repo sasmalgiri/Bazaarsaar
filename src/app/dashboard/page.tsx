@@ -18,6 +18,8 @@ import { PnlCalendarHeatmap } from '@/components/dashboard/PnlCalendarHeatmap';
 import { BehavioralInsights } from '@/components/dashboard/BehavioralInsights';
 import { PlaybookComparison } from '@/components/dashboard/PlaybookComparison';
 import { QuickTradeLogger } from '@/components/trades/QuickTradeLogger';
+import { BeginnerGuide } from '@/components/dashboard/BeginnerGuide';
+import { FeedbackButton } from '@/components/ui/FeedbackButton';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { useDashboardStore } from '@/lib/store/dashboardStore';
 import { Link2, SlidersHorizontal, RotateCcw, Brain } from 'lucide-react';
@@ -182,6 +184,9 @@ export default function DashboardPage() {
         </GlassCard>
       )}
 
+      {/* Beginner Guide — shows for new users */}
+      {!loading && <BeginnerGuide hasTrades={hasTrades} totalTrades={kpiData.totalTrades} />}
+
       {/* KPIs — full width */}
       {isEnabled('kpis') && (
         loading ? (
@@ -308,6 +313,9 @@ export default function DashboardPage() {
 
       {/* Quick Trade Logger FAB */}
       <QuickTradeLogger />
+
+      {/* Feedback Button */}
+      <FeedbackButton />
     </div>
   );
 }
