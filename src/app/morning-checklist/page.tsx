@@ -205,14 +205,16 @@ export default function MorningChecklistPage() {
         })}
       </div>
 
-      {/* Market Bias */}
+      {/* Market Bias — what do you think market will do today? */}
       <GlassCard className="p-5 mb-4">
-        <h3 className="text-sm font-semibold text-[#d4d4e8] mb-3">Today&apos;s Market Bias</h3>
+        <h3 className="text-sm font-semibold text-[#d4d4e8] mb-1">What do you think the market will do today?</h3>
+        <p className="text-[10px] text-[#4a4a6a] mb-1">Pick one based on global cues, news, and Gift Nifty. This is your guess — not a tip.</p>
+        <p className="text-[10px] text-amber-500/50 mb-3" lang="hi">आज बाज़ार कैसा रहेगा? Global cues और news देखकर अपना अंदाज़ा चुनें।</p>
         <div className="flex gap-3">
           {[
-            { value: 'bullish' as const, label: 'Bullish', icon: TrendingUp, color: 'green' },
-            { value: 'neutral' as const, label: 'Neutral', icon: Minus, color: 'amber' },
-            { value: 'bearish' as const, label: 'Bearish', icon: TrendingDown, color: 'red' },
+            { value: 'bullish' as const, label: 'Up (तेज़ी)', icon: TrendingUp, color: 'green' },
+            { value: 'neutral' as const, label: 'Flat (सामान्य)', icon: Minus, color: 'amber' },
+            { value: 'bearish' as const, label: 'Down (मंदी)', icon: TrendingDown, color: 'red' },
           ].map((b) => (
             <button
               key={b.value}
@@ -231,49 +233,64 @@ export default function MorningChecklistPage() {
         </div>
       </GlassCard>
 
-      {/* Daily Limits */}
+      {/* Daily Limits — how much can you afford to lose/win today */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <GlassCard className="p-4">
-          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
-            Max Daily Loss
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-1">
+            Max Loss Today (आज का अधिकतम नुकसान)
           </label>
+          <p className="text-[10px] text-[#4a4a6a] mb-2">
+            If I lose this much, I will STOP trading today. No exceptions.
+          </p>
           <div className="flex items-center gap-1">
             <span className="text-sm text-red-500">₹</span>
             <input
               type="number"
               value={maxLoss}
               onChange={(e) => setMaxLoss(e.target.value)}
-              placeholder="5000"
+              placeholder="e.g. 2000"
               className="w-full px-3 py-2 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-red-500/30"
             />
           </div>
+          <p className="text-[10px] text-amber-500/50 mt-1.5" lang="hi">इतना नुकसान हो तो आज trading बंद। कोई बहाना नहीं।</p>
         </GlassCard>
         <GlassCard className="p-4">
-          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
-            Target Profit
+          <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-1">
+            Target Profit (आज का लक्ष्य मुनाफ़ा)
           </label>
+          <p className="text-[10px] text-[#4a4a6a] mb-2">
+            If I make this much, I can stop for the day. Don&apos;t get greedy.
+          </p>
           <div className="flex items-center gap-1">
             <span className="text-sm text-green-500">₹</span>
             <input
               type="number"
               value={targetProfit}
               onChange={(e) => setTargetProfit(e.target.value)}
-              placeholder="3000"
+              placeholder="e.g. 1000"
               className="w-full px-3 py-2 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-green-500/30"
             />
           </div>
+          <p className="text-[10px] text-amber-500/50 mt-1.5" lang="hi">इतना मुनाफ़ा हो तो रुक जाएं। लालच न करें।</p>
         </GlassCard>
       </div>
 
-      {/* Notes */}
+      {/* Notes — what's your plan for today? */}
       <GlassCard className="p-5 mb-5">
-        <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-2">
-          Today&apos;s Game Plan
+        <label className="block text-xs font-semibold text-[#6b6b8a] uppercase tracking-wider mb-1">
+          Today&apos;s Plan (आज की योजना)
         </label>
+        <p className="text-[10px] text-[#4a4a6a] mb-2">
+          Write 1-2 lines about what you plan to do today. Which stocks? Buy or sell? At what price?
+          If you don&apos;t have a plan — don&apos;t trade.
+        </p>
+        <p className="text-[10px] text-amber-500/50 mb-2" lang="hi">
+          आज क्या करने का plan है? कौन से stocks? खरीदना या बेचना? किस price पर? Plan नहीं है तो trade मत करो।
+        </p>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="What setups will you look for? Key levels? Any events to watch?"
+          placeholder="Example: Watch RELIANCE near ₹2,450. If it breaks above with volume, buy. Stop-loss at ₹2,420."
           className="w-full px-4 py-3 rounded-lg bg-[#11111a] border border-white/[0.06] text-sm text-[#d4d4e8] placeholder:text-[#4a4a6a] outline-none focus:border-green-500/30 resize-none min-h-[80px]"
         />
       </GlassCard>
