@@ -1,10 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
-import { BookOpen, Clock, ChevronDown, ChevronUp, TrendingUp, Brain, AlertTriangle, Sparkles, CheckCircle2 } from 'lucide-react';
+import {
+  BookOpen, Clock, ChevronDown, ChevronUp, TrendingUp, Brain,
+  AlertTriangle, Sparkles, CheckCircle2, ExternalLink, GraduationCap,
+  Youtube, Globe, BarChart3, Shield, Newspaper, IndianRupee
+} from 'lucide-react';
 
+// ============================================================
+// STATIC BLOG POSTS (built-in articles)
+// ============================================================
 interface BlogPost {
   slug: string;
   title: string;
@@ -167,6 +174,149 @@ const BLOG_POSTS: BlogPost[] = [
   },
 ];
 
+// ============================================================
+// LEARNING RESOURCES — free external sites for deeper knowledge
+// ============================================================
+interface Resource {
+  name: string;
+  nameHi: string;
+  url: string;
+  desc: string;
+  descHi: string;
+  icon: typeof BookOpen;
+  tag: string;
+  tagColor: string;
+}
+
+const LEARNING_RESOURCES: Resource[] = [
+  // Official / Regulatory
+  {
+    name: 'Varsity by Zerodha',
+    nameHi: 'ज़ेरोधा वर्सिटी',
+    url: 'https://zerodha.com/varsity/',
+    desc: 'Best free stock market course in India. Start from Module 1. Covers everything from basics to options.',
+    descHi: 'भारत का सबसे अच्छा free stock market course। Module 1 से शुरू करें।',
+    icon: GraduationCap,
+    tag: 'Must Start Here',
+    tagColor: 'bg-green-500/10 text-green-500',
+  },
+  {
+    name: 'NSE Learn',
+    nameHi: 'NSE लर्न',
+    url: 'https://www.nseindia.com/learn',
+    desc: 'Free courses from the National Stock Exchange itself. Official, reliable, and beginner-friendly.',
+    descHi: 'National Stock Exchange की free courses। आधिकारिक और भरोसेमंद।',
+    icon: Shield,
+    tag: 'Official',
+    tagColor: 'bg-cyan-500/10 text-cyan-500',
+  },
+  {
+    name: 'SEBI Investor Education',
+    nameHi: 'SEBI निवेशक शिक्षा',
+    url: 'https://investor.sebi.gov.in/',
+    desc: 'Know your rights as an investor. Learn how to spot scams. Official government resource.',
+    descHi: 'निवेशक के रूप में अपने अधिकार जानें। Scam पहचानना सीखें।',
+    icon: Shield,
+    tag: 'Government',
+    tagColor: 'bg-amber-500/10 text-amber-500',
+  },
+  // YouTube Channels (genuine educators)
+  {
+    name: 'CA Rachana Ranade (YouTube)',
+    nameHi: 'CA रचना रानाडे (YouTube)',
+    url: 'https://www.youtube.com/@CArachanaranade',
+    desc: 'Basics of stock market, mutual funds, and investing explained simply. Good for absolute beginners.',
+    descHi: 'Stock market, mutual funds, investing की basics आसान भाषा में।',
+    icon: Youtube,
+    tag: 'Beginner Friendly',
+    tagColor: 'bg-green-500/10 text-green-500',
+  },
+  {
+    name: 'Pranjal Kamra (YouTube)',
+    nameHi: 'प्रांजल कामरा (YouTube)',
+    url: 'https://www.youtube.com/@PranjalKamra',
+    desc: 'Long-term investing concepts, company analysis. Good for learning fundamental analysis.',
+    descHi: 'Long-term investing, company analysis। Fundamental analysis सीखने के लिए।',
+    icon: Youtube,
+    tag: 'Investing',
+    tagColor: 'bg-purple-500/10 text-purple-400',
+  },
+  // Market Data & News
+  {
+    name: 'MoneyControl',
+    nameHi: 'मनीकंट्रोल',
+    url: 'https://www.moneycontrol.com/',
+    desc: 'India\'s biggest financial news portal. Check stock prices, FII/DII data, earnings, and market news.',
+    descHi: 'भारत का सबसे बड़ा financial news portal। Stock prices, FII/DII data, earnings check करें।',
+    icon: Newspaper,
+    tag: 'Daily Use',
+    tagColor: 'bg-amber-500/10 text-amber-500',
+  },
+  {
+    name: 'TradingView',
+    nameHi: 'ट्रेडिंगव्यू',
+    url: 'https://www.tradingview.com/',
+    desc: 'Free charts for all Indian stocks. Best for learning technical analysis. Create a free account.',
+    descHi: 'सभी Indian stocks के free charts। Technical analysis सीखने के लिए सबसे अच्छा।',
+    icon: BarChart3,
+    tag: 'Charts',
+    tagColor: 'bg-cyan-500/10 text-cyan-500',
+  },
+  {
+    name: 'Screener.in',
+    nameHi: 'स्क्रीनर',
+    url: 'https://www.screener.in/',
+    desc: 'Free fundamental data for all Indian companies. See financials, ratios, and compare companies.',
+    descHi: 'सभी Indian companies का free fundamental data। Financials, ratios देखें।',
+    icon: IndianRupee,
+    tag: 'Research',
+    tagColor: 'bg-purple-500/10 text-purple-400',
+  },
+  // Brokers with good educational content
+  {
+    name: 'Groww Learn',
+    nameHi: 'Groww लर्न',
+    url: 'https://groww.in/blog',
+    desc: 'Simple articles on stocks, mutual funds, and personal finance. Written for beginners.',
+    descHi: 'Stocks, mutual funds, personal finance पर आसान articles।',
+    icon: BookOpen,
+    tag: 'Easy Reading',
+    tagColor: 'bg-green-500/10 text-green-500',
+  },
+  {
+    name: 'Investopedia',
+    nameHi: 'इन्वेस्टोपीडिया',
+    url: 'https://www.investopedia.com/',
+    desc: 'World\'s largest financial education site. Search any term you don\'t understand. Available in English.',
+    descHi: 'दुनिया की सबसे बड़ी financial education site। कोई भी term search करें।',
+    icon: Globe,
+    tag: 'Dictionary',
+    tagColor: 'bg-amber-500/10 text-amber-500',
+  },
+];
+
+// ============================================================
+// DB Posts (from Supabase)
+// ============================================================
+interface DbPost {
+  id: string;
+  slug: string;
+  title: string;
+  title_hi: string;
+  excerpt: string;
+  excerpt_hi: string;
+  body: string;
+  body_hi: string;
+  category: string;
+  read_time: string;
+  published_at: string;
+  is_daily_prep: boolean;
+}
+
+// ============================================================
+// Components
+// ============================================================
+
 function BlogPostCard({ post }: { post: BlogPost }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -177,7 +327,6 @@ function BlogPostCard({ post }: { post: BlogPost }) {
           <post.icon size={20} className="text-[#6b6b8a]" />
         </div>
         <div className="flex-1 min-w-0">
-          {/* Meta */}
           <div className="flex items-center gap-2 mb-1.5">
             <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${post.categoryColor}`}>
               {post.category}
@@ -190,18 +339,11 @@ function BlogPostCard({ post }: { post: BlogPost }) {
               {new Date(post.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
             </span>
           </div>
-
-          {/* Title */}
-          <h2 className="text-base font-semibold text-[#d4d4e8] mb-0.5 leading-snug">
-            {post.title}
-          </h2>
+          <h2 className="text-base font-semibold text-[#d4d4e8] mb-0.5 leading-snug">{post.title}</h2>
           <p className="text-[11px] text-amber-500/50 mb-2" lang="hi">{post.titleHi}</p>
-
-          {/* Excerpt (always visible) */}
           <p className="text-xs text-[#6b6b8a] leading-relaxed">{post.excerpt}</p>
           <p className="text-[10px] text-amber-500/40 leading-relaxed" lang="hi">{post.excerptHi}</p>
 
-          {/* Full article content (expandable) */}
           {expanded && (
             <div className="mt-4 space-y-3 pt-3 border-t border-white/[0.06]">
               {post.body.map((para, i) => (
@@ -213,17 +355,79 @@ function BlogPostCard({ post }: { post: BlogPost }) {
             </div>
           )}
 
-          {/* Read more / collapse toggle */}
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
             className="inline-flex items-center gap-1 mt-3 text-[11px] font-medium text-green-500 bg-transparent border-none cursor-pointer hover:underline p-0"
           >
-            {expanded ? (
-              <>Collapse <ChevronUp size={10} /></>
-            ) : (
-              <>Read full article <ChevronDown size={10} /></>
+            {expanded ? (<>Collapse <ChevronUp size={10} /></>) : (<>Read full article <ChevronDown size={10} /></>)}
+          </button>
+        </div>
+      </div>
+    </GlassCard>
+  );
+}
+
+function DbPostCard({ post }: { post: DbPost }) {
+  const [expanded, setExpanded] = useState(false);
+  const paragraphs = post.body.split('\n\n').filter(Boolean);
+  const paragraphsHi = post.body_hi ? post.body_hi.split('\n\n').filter(Boolean) : [];
+
+  const CATEGORY_COLORS: Record<string, string> = {
+    'Must Read': 'bg-red-500/10 text-red-400',
+    'Beginner': 'bg-green-500/10 text-green-500',
+    'Psychology': 'bg-purple-500/10 text-purple-400',
+    'Process': 'bg-amber-500/10 text-amber-500',
+    'Daily Prep': 'bg-cyan-500/10 text-cyan-500',
+    'Market Basics': 'bg-blue-500/10 text-blue-400',
+    'Risk Management': 'bg-red-500/10 text-red-400',
+    'General': 'bg-white/[0.06] text-[#6b6b8a]',
+  };
+
+  return (
+    <GlassCard className={`p-5 transition-all ${post.is_daily_prep ? 'border-l-2 border-cyan-500/30' : ''}`}>
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0 mt-0.5">
+          {post.is_daily_prep ? <Sparkles size={20} className="text-cyan-500" /> : <BookOpen size={20} className="text-[#6b6b8a]" />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${CATEGORY_COLORS[post.category] || CATEGORY_COLORS.General}`}>
+              {post.category}
+            </span>
+            {post.is_daily_prep && (
+              <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-cyan-500/10 text-cyan-500">Daily Prep</span>
             )}
+            <span className="flex items-center gap-1 text-[10px] text-[#4a4a6a]">
+              <Clock size={10} />
+              {post.read_time} read
+            </span>
+            <span className="text-[10px] text-[#4a4a6a]">
+              {post.published_at && new Date(post.published_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
+          </div>
+          <h2 className="text-base font-semibold text-[#d4d4e8] mb-0.5 leading-snug">{post.title}</h2>
+          {post.title_hi && <p className="text-[11px] text-amber-500/50 mb-2" lang="hi">{post.title_hi}</p>}
+          <p className="text-xs text-[#6b6b8a] leading-relaxed">{post.excerpt}</p>
+          {post.excerpt_hi && <p className="text-[10px] text-amber-500/40 leading-relaxed" lang="hi">{post.excerpt_hi}</p>}
+
+          {expanded && (
+            <div className="mt-4 space-y-3 pt-3 border-t border-white/[0.06]">
+              {paragraphs.map((para, i) => (
+                <div key={i}>
+                  <p className="text-sm text-[#b0b0c8] leading-relaxed">{para}</p>
+                  {paragraphsHi[i] && <p className="text-[11px] text-amber-500/40 mt-1 leading-relaxed" lang="hi">{paragraphsHi[i]}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="inline-flex items-center gap-1 mt-3 text-[11px] font-medium text-green-500 bg-transparent border-none cursor-pointer hover:underline p-0"
+          >
+            {expanded ? (<>Collapse <ChevronUp size={10} /></>) : (<>Read full article <ChevronDown size={10} /></>)}
           </button>
         </div>
       </div>
@@ -235,6 +439,20 @@ export default function BlogPage() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
+  const [dbPosts, setDbPosts] = useState<DbPost[]>([]);
+  const [activeTab, setActiveTab] = useState<'articles' | 'resources' | 'daily'>('articles');
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from('blog_post')
+      .select('*')
+      .eq('is_published', true)
+      .order('published_at', { ascending: false })
+      .then(({ data }: { data: DbPost[] | null }) => {
+        if (data) setDbPosts(data);
+      });
+  }, []);
 
   const handleSubscribe = async () => {
     if (!email.trim() || !email.includes('@')) return;
@@ -254,31 +472,170 @@ export default function BlogPage() {
     setEmail('');
   };
 
+  const dailyPrepPosts = dbPosts.filter((p) => p.is_daily_prep);
+  const regularDbPosts = dbPosts.filter((p) => !p.is_daily_prep);
+
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <BookOpen size={28} className="text-amber-500" />
           <div>
-            <h1 className="text-2xl font-bold text-[#fafaff]">Blog & Guides</h1>
-            <p className="text-sm text-amber-500/70" lang="hi">ब्लॉग और गाइड</p>
+            <h1 className="text-2xl font-bold text-[#fafaff]">Learn & Prepare</h1>
+            <p className="text-sm text-amber-500/70" lang="hi">सीखें और तैयारी करें</p>
           </div>
         </div>
         <p className="text-sm text-[#6b6b8a]">
-          Simple, honest articles about trading, psychology, and building better habits. No hype, no tips, no &quot;guaranteed returns.&quot;
+          Articles, daily market prep, and the best free resources to learn trading — all in one place.
         </p>
         <p className="text-[11px] text-amber-500/50 mt-1" lang="hi">
-          Trading, psychology, और बेहतर आदतें बनाने के बारे में सरल, ईमानदार लेख। कोई hype नहीं, कोई tips नहीं।
+          Articles, daily market prep, और trading सीखने के best free resources — सब एक जगह।
         </p>
       </div>
 
-      {/* Blog Posts */}
-      <div className="space-y-4 mb-8">
-        {BLOG_POSTS.map((post) => (
-          <BlogPostCard key={post.slug} post={post} />
+      {/* Tabs */}
+      <div className="flex items-center gap-1 mb-6 p-1 rounded-xl bg-white/[0.02] border border-white/[0.06] w-fit">
+        {[
+          { key: 'articles' as const, label: 'Articles', labelHi: 'लेख', count: BLOG_POSTS.length + regularDbPosts.length },
+          { key: 'daily' as const, label: 'Daily Prep', labelHi: 'दैनिक तैयारी', count: dailyPrepPosts.length },
+          { key: 'resources' as const, label: 'Learning Resources', labelHi: 'संसाधन', count: LEARNING_RESOURCES.length },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setActiveTab(tab.key)}
+            className={`px-4 py-2 rounded-lg text-xs font-medium border-none cursor-pointer transition-all ${
+              activeTab === tab.key
+                ? 'bg-green-500/10 text-green-500'
+                : 'bg-transparent text-[#6b6b8a] hover:text-[#d4d4e8]'
+            }`}
+          >
+            {tab.label}
+            {tab.count > 0 && <span className="ml-1.5 text-[10px] opacity-60">({tab.count})</span>}
+          </button>
         ))}
       </div>
+
+      {/* Articles Tab */}
+      {activeTab === 'articles' && (
+        <div className="space-y-4 mb-8">
+          {/* DB posts first (newest) */}
+          {regularDbPosts.map((post) => (
+            <DbPostCard key={post.id} post={post} />
+          ))}
+          {/* Static posts */}
+          {BLOG_POSTS.map((post) => (
+            <BlogPostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      )}
+
+      {/* Daily Prep Tab */}
+      {activeTab === 'daily' && (
+        <div className="space-y-4 mb-8">
+          {dailyPrepPosts.length === 0 ? (
+            <GlassCard className="p-8 text-center">
+              <Sparkles size={32} className="text-cyan-500 mx-auto mb-3" />
+              <h2 className="text-base font-semibold text-[#d4d4e8] mb-1">Daily market prep coming soon!</h2>
+              <p className="text-[11px] text-amber-500/50 mb-3" lang="hi">दैनिक market तैयारी जल्द आ रही है!</p>
+              <p className="text-xs text-[#6b6b8a] max-w-md mx-auto">
+                We&apos;re working on daily market prep posts — Gift Nifty analysis, key events, FII/DII data summary, and trading ideas for the day. Subscribe to get notified!
+              </p>
+              <p className="text-[10px] text-amber-500/40 mt-1 max-w-md mx-auto" lang="hi">
+                हम daily market prep posts पर काम कर रहे हैं — Gift Nifty analysis, key events, FII/DII data summary। Subscribe करें!
+              </p>
+            </GlassCard>
+          ) : (
+            dailyPrepPosts.map((post) => (
+              <DbPostCard key={post.id} post={post} />
+            ))
+          )}
+
+          {/* Meanwhile, use Morning Checklist */}
+          <GlassCard className="p-4 border-l-2 border-green-500/30">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 size={16} className="text-green-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-[#d4d4e8] font-medium">Meanwhile, use the Morning Checklist</p>
+                <p className="text-[10px] text-amber-500/40" lang="hi">तब तक Morning Checklist इस्तेमाल करें</p>
+                <p className="text-xs text-[#6b6b8a] mt-1">
+                  Our morning checklist has live Market Intel — expiry alerts, RBI dates, quick links to Gift Nifty, FII/DII data, and global markets. All free.
+                </p>
+                <a href="/morning-checklist" className="inline-flex items-center gap-1 mt-2 text-xs text-green-500 hover:underline">
+                  Go to Morning Checklist →
+                </a>
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+      )}
+
+      {/* Learning Resources Tab */}
+      {activeTab === 'resources' && (
+        <div className="space-y-6 mb-8">
+          {/* Start Here */}
+          <div>
+            <h2 className="text-sm font-semibold text-[#d4d4e8] mb-1">Start Your Learning Here</h2>
+            <p className="text-[10px] text-amber-500/50 mb-3" lang="hi">अपनी पढ़ाई यहां से शुरू करें — सब FREE है</p>
+            <p className="text-xs text-[#6b6b8a] mb-4">
+              All these resources are <strong className="text-green-500">100% FREE</strong>. No hidden charges. No affiliate links. We recommend them because they&apos;re genuinely helpful.
+            </p>
+          </div>
+
+          {/* Resources Grid */}
+          <div className="space-y-3">
+            {LEARNING_RESOURCES.map((resource) => (
+              <a
+                key={resource.name}
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block no-underline group"
+              >
+                <GlassCard className="p-4 hover:border-white/[0.12] transition-all">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white/[0.04] flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-white/[0.06] transition-colors">
+                      <resource.icon size={16} className="text-[#6b6b8a] group-hover:text-green-500 transition-colors" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h3 className="text-sm font-semibold text-[#d4d4e8] group-hover:text-[#fafaff] transition-colors">
+                          {resource.name}
+                        </h3>
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-medium ${resource.tagColor}`}>
+                          {resource.tag}
+                        </span>
+                        <ExternalLink size={10} className="text-[#4a4a6a] opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <p className="text-[10px] text-amber-500/40" lang="hi">{resource.nameHi}</p>
+                      <p className="text-xs text-[#6b6b8a] mt-1 leading-relaxed">{resource.desc}</p>
+                      <p className="text-[10px] text-amber-500/30 mt-0.5" lang="hi">{resource.descHi}</p>
+                    </div>
+                  </div>
+                </GlassCard>
+              </a>
+            ))}
+          </div>
+
+          {/* Warning */}
+          <GlassCard className="p-4 border-l-2 border-amber-500/30 bg-amber-500/[0.02]">
+            <div className="flex items-start gap-2">
+              <AlertTriangle size={14} className="text-amber-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-medium text-amber-500">Warning about paid courses & "tips"</p>
+                <p className="text-[10px] text-amber-500/40 mb-1" lang="hi">Paid courses और "tips" के बारे में चेतावनी</p>
+                <p className="text-xs text-[#6b6b8a] leading-relaxed">
+                  If someone is selling a ₹20,000-₹50,000 trading course or sending "guaranteed profit tips," they are almost certainly making money from the course/tips — not from actual trading. The resources above are free because real education doesn&apos;t need to be expensive.
+                </p>
+                <p className="text-[10px] text-amber-500/30 mt-1 leading-relaxed" lang="hi">
+                  अगर कोई ₹20,000-₹50,000 का trading course बेच रहा है या &quot;guaranteed profit tips&quot; भेज रहा है, तो वे लगभग निश्चित रूप से course/tips से पैसे कमा रहे हैं — actual trading से नहीं।
+                </p>
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+      )}
 
       {/* Newsletter CTA */}
       <GlassCard className="p-6 text-center mb-8">
@@ -292,8 +649,8 @@ export default function BlogPage() {
           </div>
         ) : (
           <>
-            <h3 className="text-base font-bold text-[#fafaff] mb-1">Get new articles in your inbox</h3>
-            <p className="text-[11px] text-amber-500/50 mb-3" lang="hi">नए articles अपने inbox में पाएं</p>
+            <h3 className="text-base font-bold text-[#fafaff] mb-1">Get new articles & daily prep in your inbox</h3>
+            <p className="text-[11px] text-amber-500/50 mb-3" lang="hi">नए articles और daily prep अपने inbox में पाएं</p>
             <p className="text-xs text-[#6b6b8a] mb-4 max-w-md mx-auto">
               One email per week. No spam, no tips. Just honest trading knowledge.
               <span className="text-amber-500/40 ml-1" lang="hi">हफ़्ते में एक email। कोई spam नहीं।</span>
