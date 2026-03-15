@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
 import {
@@ -48,6 +49,7 @@ const CATEGORY_CONFIG = {
 type MarketBias = 'bullish' | 'bearish' | 'neutral' | '';
 
 export default function MorningChecklistPage() {
+  const router = useRouter();
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [bias, setBias] = useState<MarketBias>('');
   const [notes, setNotes] = useState('');
@@ -80,12 +82,16 @@ export default function MorningChecklistPage() {
   const totalCount = DEFAULT_CHECKLIST.length;
   const completion = Math.round((checkedCount / totalCount) * 100);
 
-  const handleSave = () => {
+  const handleSave = (redirect = true) => {
     const data = { checked, bias, notes, maxLoss, targetProfit, date: today };
     localStorage.setItem(`bazaarsaar-morning-${today}`, JSON.stringify(data));
     setSaved(true);
     setTodayDone(true);
-    setTimeout(() => setSaved(false), 2000);
+    if (redirect) {
+      setTimeout(() => router.push('/dashboard'), 600);
+    } else {
+      setTimeout(() => setSaved(false), 2000);
+    }
   };
 
   const handleReset = () => {
@@ -323,11 +329,11 @@ export default function MorningChecklistPage() {
       <div className="flex items-center gap-3 mb-3">
         <button
           type="button"
-          onClick={handleSave}
+          onClick={() => handleSave(true)}
           className="flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium text-[#0d0d14] bg-green-500 border-none cursor-pointer hover:bg-green-400 transition-colors"
         >
           <Save size={16} />
-          {saved ? 'Saved!' : 'Save & Start Trading'}
+          {saved ? 'Saved! Redirecting...' : 'Save & Start Trading →'}
         </button>
         {completion < 80 && (
           <span className="text-xs text-amber-500 flex items-center gap-1">
@@ -343,7 +349,7 @@ export default function MorningChecklistPage() {
           type="button"
           onClick={() => {
             handleQuickCheck();
-            setTimeout(handleSave, 100);
+            setTimeout(() => handleSave(true), 100);
           }}
           className="text-xs text-[#4a4a6a] bg-transparent border-none cursor-pointer hover:text-[#6b6b8a] underline"
         >
