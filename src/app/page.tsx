@@ -471,6 +471,38 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ─── Comparison Table ─── */}
+        <section className="px-6 py-12 border-t border-white/[0.06]" aria-label="Comparison">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-lg font-bold text-[#fafaff] text-center mb-2">
+              How We&apos;re Different
+            </h2>
+            <p className="text-xs text-amber-500/70 text-center mb-8" lang="hi">
+              हम कैसे अलग हैं
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-white/[0.08]">
+                    <th className="text-left py-3 px-3 text-[#6b6b8a] font-medium w-1/4">&nbsp;</th>
+                    <th className="py-3 px-3 text-[#6b6b8a] font-medium">YouTube Gurus</th>
+                    <th className="py-3 px-3 text-[#6b6b8a] font-medium">Paid Tip Groups</th>
+                    <th className="py-3 px-3 text-green-500 font-semibold">BazaarSaar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <CompareRow label="Gives buy/sell tips" col1="yes" col2="yes" col3="never" />
+                  <CompareRow label="Shows their losses" col1="no" col2="no" col3="always" />
+                  <CompareRow label="Cost" col1="&quot;Free&quot; then courses" col2="₹500-5000/mo" col3="100% Free Forever" />
+                  <CompareRow label="Teaches discipline" col1="rarely" col2="never" col3="core focus" />
+                  <CompareRow label="Uses SEBI data" col1="hides it" col2="ignores it" col3="shows it upfront" />
+                  <CompareRow label="Your data privacy" col1="unknown" col2="unknown" col3="you own it, delete anytime" />
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
         {/* ─── Who Is This For ─── */}
         <section className="px-6 py-12 border-t border-white/[0.06]" aria-label="Who is this for">
           <div className="max-w-3xl mx-auto text-center">
@@ -488,6 +520,27 @@ export default function Home() {
               <WhoCard text="You want to improve but don't know how" textHi="सुधरना चाहते हैं लेकिन तरीक़ा नहीं पता" />
               <WhoCard text="You want honest tools, not paid tips groups" textHi="ईमानदार tools चाहिए, paid tips groups नहीं" />
             </div>
+          </div>
+        </section>
+
+        {/* ─── NOT For You (Anti-audience — builds trust) ─── */}
+        <section className="px-6 py-10 border-t border-white/[0.06]" aria-label="Not for you">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-lg font-bold text-[#fafaff] mb-2">
+              BazaarSaar Is NOT For You If...
+            </h2>
+            <p className="text-xs text-amber-500/70 mb-6" lang="hi">
+              BazaarSaar आपके लिए नहीं है अगर...
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+              <NotForCard text="You want stock tips and buy/sell signals" textHi="आप stock tips और buy/sell signals चाहते हैं" />
+              <NotForCard text="You think trading is a shortcut to get rich quick" textHi="आप सोचते हैं trading जल्दी अमीर बनने का shortcut है" />
+              <NotForCard text="You want someone else to trade for you" textHi="आप चाहते हैं कोई और आपके लिए trade करे" />
+              <NotForCard text="You believe ₹500 courses will make you a crorepati" textHi="आप मानते हैं ₹500 का course करोड़पति बना देगा" />
+            </div>
+            <p className="text-[11px] text-[#4a4a6a] mt-4">
+              We believe in honesty over hype. If the above describes you, BazaarSaar will disappoint you — and that&apos;s okay.
+            </p>
           </div>
         </section>
 
@@ -552,8 +605,11 @@ export default function Home() {
           </p>
         </section>
 
+        {/* Sticky mobile CTA */}
+        <StickyMobileCTA />
+
         {/* ─── Footer ─── */}
-        <footer className="border-t border-white/[0.06] px-6 py-6 text-center">
+        <footer className="border-t border-white/[0.06] px-6 py-6 pb-20 sm:pb-6 text-center">
           <p className="text-[11px] text-[#4a4a6a] max-w-2xl mx-auto mb-3">
             BazaarSaar is a journaling and learning tool — not a trading platform.
             We do not provide investment advice, tips, or recommendations.
@@ -678,6 +734,35 @@ function WhoCard({ text, textHi }: { text: string; textHi: string }) {
   );
 }
 
+function CompareRow({ label, col1, col2, col3 }: { label: string; col1: string; col2: string; col3: string }) {
+  const cellStyle = (val: string) => {
+    const lower = val.toLowerCase();
+    if (lower === 'yes' || lower.includes('free') || lower === 'always' || lower === 'core focus' || lower.includes('you own')) return 'text-green-500';
+    if (lower === 'no' || lower === 'never' || lower.includes('hides') || lower.includes('ignores') || lower.includes('unknown')) return 'text-red-400';
+    return 'text-[#6b6b8a]';
+  };
+  return (
+    <tr className="border-b border-white/[0.04]">
+      <td className="py-2.5 px-3 text-[#d4d4e8] font-medium">{label}</td>
+      <td className={`py-2.5 px-3 text-center ${cellStyle(col1)}`}>{col1}</td>
+      <td className={`py-2.5 px-3 text-center ${cellStyle(col2)}`}>{col2}</td>
+      <td className={`py-2.5 px-3 text-center font-medium ${cellStyle(col3)}`}>{col3}</td>
+    </tr>
+  );
+}
+
+function NotForCard({ text, textHi }: { text: string; textHi: string }) {
+  return (
+    <div className="flex items-start gap-3 p-3 rounded-lg border border-red-500/10 bg-red-500/[0.03]">
+      <XCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
+      <div>
+        <p className="text-sm text-[#d4d4e8]">{text}</p>
+        <p className="text-[11px] text-amber-500/60" lang="hi">{textHi}</p>
+      </div>
+    </div>
+  );
+}
+
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   return (
     <details className="group border border-white/[0.06] rounded-xl bg-white/[0.02]">
@@ -687,5 +772,20 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
       </summary>
       <p className="px-5 pb-4 text-xs text-[#6b6b8a] leading-relaxed">{answer}</p>
     </details>
+  );
+}
+
+/* ─── Sticky Mobile CTA ─── */
+function StickyMobileCTA() {
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-[#0a0a0f]/95 backdrop-blur-sm border-t border-white/[0.06] px-4 py-3">
+      <Link
+        href="/auth/signup"
+        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-[#0d0d14] bg-green-500 no-underline"
+      >
+        Start Free — शुरू करें
+        <ArrowRight size={16} />
+      </Link>
+    </div>
   );
 }

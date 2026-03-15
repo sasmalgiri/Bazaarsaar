@@ -7,12 +7,22 @@ import { Zap, X, Plus, Check } from 'lucide-react';
 
 const POPULAR_SYMBOLS = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN', 'TATAMOTORS', 'ITC', 'LT', 'BHARTIARTL'];
 
+const MOOD_OPTIONS = [
+  { value: 'calm', emoji: '\uD83D\uDE0C', label: 'Calm', labelHi: 'शांत' },
+  { value: 'confident', emoji: '\uD83D\uDE0E', label: 'Confident', labelHi: 'आत्मविश्वास' },
+  { value: 'anxious', emoji: '\uD83D\uDE30', label: 'Anxious', labelHi: 'चिंतित' },
+  { value: 'fomo', emoji: '\uD83D\uDE28', label: 'FOMO', labelHi: 'छूटने का डर' },
+  { value: 'frustrated', emoji: '\uD83D\uDE21', label: 'Frustrated', labelHi: 'निराश' },
+] as const;
+
 interface QuickTradeLoggerProps {
   onTradeAdded?: () => void;
 }
 
 export function QuickTradeLogger({ onTradeAdded }: QuickTradeLoggerProps) {
   const [open, setOpen] = useState(false);
+  const [moodChecked, setMoodChecked] = useState(false);
+  const [mood, setMood] = useState('');
   const [symbol, setSymbol] = useState('');
   const [side, setSide] = useState<'BUY' | 'SELL'>('BUY');
   const [quantity, setQuantity] = useState('');
@@ -50,6 +60,8 @@ export function QuickTradeLogger({ onTradeAdded }: QuickTradeLoggerProps) {
       setSymbol('');
       setQuantity('');
       setPrice('');
+      setMood('');
+      setMoodChecked(false);
       onTradeAdded?.();
     }, 1500);
   };
@@ -77,14 +89,62 @@ export function QuickTradeLogger({ onTradeAdded }: QuickTradeLoggerProps) {
           </div>
           <button
             type="button"
-            onClick={() => setOpen(false)}
+            onClick={() => { setOpen(false); setMoodChecked(false); setMood(''); }}
+            title="Close"
             className="p-1 rounded bg-transparent border-none cursor-pointer text-[#6b6b8a] hover:text-[#d4d4e8] transition-colors"
           >
             <X size={14} />
           </button>
         </div>
 
-        <div className="space-y-3">
+        {/* Pre-trade emotional check-in */}
+        {!moodChecked && (
+          <div className="space-y-3">
+            <p className="text-xs text-[#d4d4e8] font-medium">How are you feeling right now?</p>
+            <p className="text-[10px] text-amber-500/60" lang="hi">अभी आपका mood कैसा है?</p>
+            <div className="flex flex-wrap gap-2">
+              {MOOD_OPTIONS.map((m) => (
+                <button
+                  key={m.value}
+                  type="button"
+                  title={m.label}
+                  onClick={() => setMood(m.value)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border cursor-pointer transition-all ${
+                    mood === m.value
+                      ? 'border-green-500/30 bg-green-500/10 text-green-500'
+                      : 'border-white/[0.06] bg-transparent text-[#6b6b8a] hover:bg-white/[0.06]'
+                  }`}
+                >
+                  <span>{m.emoji}</span>
+                  <span>{m.label}</span>
+                </button>
+              ))}
+            </div>
+            {mood === 'fomo' && (
+              <div className="p-2.5 rounded-lg bg-amber-500/[0.06] border border-amber-500/10">
+                <p className="text-[11px] text-amber-500">Pause. FOMO trades have the lowest win rate. Are you sure about this trade?</p>
+                <p className="text-[10px] text-amber-500/60 mt-0.5" lang="hi">रुकें। FOMO से किए trades में सबसे कम जीत होती है।</p>
+              </div>
+            )}
+            {mood === 'frustrated' && (
+              <div className="p-2.5 rounded-lg bg-red-500/[0.06] border border-red-500/10">
+                <p className="text-[11px] text-red-400">Consider taking a break. Revenge trading costs money.</p>
+                <p className="text-[10px] text-amber-500/60 mt-0.5" lang="hi">ब्रेक लें। बदले की trading पैसे डुबोती है।</p>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setMoodChecked(true)}
+              disabled={!mood}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-[#0d0d14] bg-green-500 border-none cursor-pointer hover:bg-green-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Continue to Trade
+            </button>
+            <p className="text-[10px] text-[#4a4a6a] text-center">This helps you track which moods lead to good/bad trades.</p>
+          </div>
+        )}
+
+        {moodChecked && <div className="space-y-3">
           {/* Symbol */}
           <div>
             <input
@@ -186,7 +246,7 @@ export function QuickTradeLogger({ onTradeAdded }: QuickTradeLoggerProps) {
           >
             {saved ? <><Check size={14} /> Saved!</> : saving ? 'Saving...' : <><Zap size={14} /> Log Trade</>}
           </button>
-        </div>
+        </div>}
       </GlassCard>
     </div>
   );

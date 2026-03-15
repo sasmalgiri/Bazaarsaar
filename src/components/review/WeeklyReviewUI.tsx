@@ -70,8 +70,38 @@ export function WeeklyReviewUI() {
   const report = selected!;
   const winRate = report.total_trades > 0 ? ((report.win_count / report.total_trades) * 100).toFixed(1) : '0';
 
+  // Calculate weekly grade
+  const calcGrade = () => {
+    let score = 0;
+    const wr = report.total_trades > 0 ? (report.win_count / report.total_trades) * 100 : 0;
+    if (wr >= 60) score += 3; else if (wr >= 45) score += 2; else if (wr >= 30) score += 1;
+    const fillRate = Number(report.journal_fill_rate) || 0;
+    if (fillRate >= 80) score += 3; else if (fillRate >= 50) score += 2; else if (fillRate >= 20) score += 1;
+    const checklist = Number(report.avg_checklist_completion) || 0;
+    if (checklist >= 80) score += 3; else if (checklist >= 50) score += 2; else if (checklist >= 20) score += 1;
+    if (Number(report.net_pnl) > 0) score += 1;
+
+    if (score >= 9) return { grade: 'A+', color: 'text-green-500', msg: 'Outstanding discipline!', msgHi: 'शानदार अनुशासन!' };
+    if (score >= 7) return { grade: 'A', color: 'text-green-500', msg: 'Great week! Keep it up.', msgHi: 'बढ़िया हफ़्ता! जारी रखें।' };
+    if (score >= 5) return { grade: 'B', color: 'text-cyan-500', msg: 'Good progress. Room to grow.', msgHi: 'अच्छी प्रगति। और बेहतर हो सकता है।' };
+    if (score >= 3) return { grade: 'C', color: 'text-amber-500', msg: 'Journal more trades & follow checklists.', msgHi: 'ज़्यादा trades journal करें और checklist follow करें।' };
+    return { grade: 'D', color: 'text-red-500', msg: 'Start journaling and using checklists this week.', msgHi: 'इस हफ़्ते journal और checklist शुरू करें।' };
+  };
+  const grade = calcGrade();
+
   return (
     <div className="space-y-6">
+      {/* Weekly Grade */}
+      <GlassCard className="p-5 flex items-center gap-4">
+        <div className={`text-4xl font-bold font-mono ${grade.color}`}>{grade.grade}</div>
+        <div>
+          <p className="text-sm font-semibold text-[#d4d4e8]">Week Score (हफ़्ते का स्कोर)</p>
+          <p className="text-xs text-[#6b6b8a]">{grade.msg}</p>
+          <p className="text-[10px] text-amber-500/60" lang="hi">{grade.msgHi}</p>
+          <p className="text-[10px] text-[#4a4a6a] mt-1">Based on win rate, journal fill rate, and checklist adherence — not P&amp;L.</p>
+        </div>
+      </GlassCard>
+
       {/* Week selector */}
       <div className="flex gap-2 overflow-x-auto pb-2">
         {reports.map((r) => (

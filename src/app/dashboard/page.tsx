@@ -20,6 +20,9 @@ import { PlaybookComparison } from '@/components/dashboard/PlaybookComparison';
 import { QuickTradeLogger } from '@/components/trades/QuickTradeLogger';
 import { BeginnerGuide } from '@/components/dashboard/BeginnerGuide';
 import { DailyWisdom } from '@/components/dashboard/DailyWisdom';
+import { JournalStreak } from '@/components/dashboard/JournalStreak';
+import { BadDayNudge } from '@/components/dashboard/BadDayNudge';
+import { DemoKPICards } from '@/components/dashboard/DemoKPICards';
 import { FeedbackButton } from '@/components/ui/FeedbackButton';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { useDashboardStore } from '@/lib/store/dashboardStore';
@@ -54,6 +57,14 @@ export default function DashboardPage() {
   const [showCustomize, setShowCustomize] = useState(false);
 
   const isEnabled = (id: string) => widgets.find((w) => w.id === id)?.enabled !== false;
+
+  // Hide advanced widgets for beginners with few trades — progressive disclosure
+  const ADVANCED_WIDGETS = ['advancedStats', 'fnoAnalytics', 'behavioral', 'playbooks', 'aiInsights'];
+  const isAdvancedReady = trades.length >= 10;
+  const shouldShow = (id: string) => {
+    if (ADVANCED_WIDGETS.includes(id) && !isAdvancedReady && persona === 'investor') return false;
+    return isEnabled(id);
+  };
 
   useEffect(() => {
     if (!_hasHydrated) return; // wait for localStorage to load
@@ -188,6 +199,20 @@ export default function DashboardPage() {
       {/* Beginner Guide — shows for new users */}
       {!loading && <BeginnerGuide hasTrades={hasTrades} totalTrades={kpiData.totalTrades} />}
 
+      {/* Journal Streak */}
+      {!loading && hasTrades && (
+        <div className="mb-5">
+          <JournalStreak />
+        </div>
+      )}
+
+      {/* Bad Day Compassionate Nudge */}
+      {!loading && hasTrades && (
+        <div className="mb-5">
+          <BadDayNudge netPnl={kpiData.netPnl} lossCount={kpiData.lossCount} totalTrades={kpiData.totalTrades} />
+        </div>
+      )}
+
       {/* Daily Wisdom */}
       {isEnabled('dailyWisdom') && (
         <div className="mb-5">
@@ -207,18 +232,22 @@ export default function DashboardPage() {
           <div className="mb-5">
             <KPICards {...kpiData} />
           </div>
-        ) : null
+        ) : (
+          <div className="mb-5">
+            <DemoKPICards />
+          </div>
+        )
       )}
 
       {/* Advanced Stats */}
-      {isEnabled('advancedStats') && hasTrades && (
+      {shouldShow('advancedStats') && hasTrades && (
         <div className="mb-5">
           <AdvancedStats trades={trades} />
         </div>
       )}
 
       {/* AI Insights */}
-      {isEnabled('aiInsights') && hasTrades && (
+      {shouldShow('aiInsights') && hasTrades && (
         <div className="mb-5">
           <AIInsights trades={trades} />
         </div>
@@ -239,20 +268,33 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Unlock Advanced hint for beginners */}
+      {!isAdvancedReady && persona === 'investor' && hasTrades && (
+        <GlassCard className="p-4 mb-5 border-l-4 border-cyan-500/30">
+          <p className="text-xs text-[#d4d4e8]">
+            <Brain size={14} className="inline mr-1.5 text-cyan-500" />
+            <strong>Advanced insights unlock after 10 trades.</strong> You have {trades.length} so far. Keep journaling!
+          </p>
+          <p className="text-[10px] text-amber-500/60 mt-1" lang="hi">
+            10 trades के बाद advanced insights unlock होंगे। अभी आपके {trades.length} trades हैं। journal करते रहें!
+          </p>
+        </GlassCard>
+      )}
+
       {/* Main grid — Behavioral Insights first */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         {/* Behavioral Intelligence — PRIMARY content */}
-        {isEnabled('behavioral') && (
+        {shouldShow('behavioral') && (
           <div className="lg:col-span-2">
             <BehavioralInsights />
           </div>
         )}
 
         {/* F&O / Segment Analytics */}
-        {isEnabled('fnoAnalytics') && hasTrades && <FnOAnalytics trades={trades} />}
+        {shouldShow('fnoAnalytics') && hasTrades && <FnOAnalytics trades={trades} />}
 
         {/* Playbook Comparison */}
-        {isEnabled('playbooks') && <PlaybookComparison />}
+        {shouldShow('playbooks') && <PlaybookComparison />}
 
         {/* Broker Status */}
         {isEnabled('broker') && (
