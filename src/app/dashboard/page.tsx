@@ -19,6 +19,7 @@ import { BehavioralInsights } from '@/components/dashboard/BehavioralInsights';
 import { PlaybookComparison } from '@/components/dashboard/PlaybookComparison';
 import { QuickTradeLogger } from '@/components/trades/QuickTradeLogger';
 import { BeginnerGuide } from '@/components/dashboard/BeginnerGuide';
+import { DailyWisdom } from '@/components/dashboard/DailyWisdom';
 import { FeedbackButton } from '@/components/ui/FeedbackButton';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { useDashboardStore } from '@/lib/store/dashboardStore';
@@ -186,6 +187,13 @@ export default function DashboardPage() {
 
       {/* Beginner Guide — shows for new users */}
       {!loading && <BeginnerGuide hasTrades={hasTrades} totalTrades={kpiData.totalTrades} />}
+
+      {/* Daily Wisdom */}
+      {isEnabled('dailyWisdom') && (
+        <div className="mb-5">
+          <DailyWisdom />
+        </div>
+      )}
 
       {/* KPIs — full width */}
       {isEnabled('kpis') && (

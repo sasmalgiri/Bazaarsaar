@@ -15,6 +15,7 @@ const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: typeof LayoutDa
   { href: '/trades', labelKey: 'nav.trades', icon: ArrowLeftRight },
   { href: '/playbooks', labelKey: 'nav.playbooks', icon: BookCheck },
   { href: '/review/weekly', labelKey: 'nav.weeklyReview', icon: CalendarCheck },
+  { href: '/learn', labelKey: 'nav.learn', icon: Brain },
   { href: '/datalab', labelKey: 'nav.datalab', icon: FlaskConical },
   { href: '/dashboard/watchlist', labelKey: 'nav.watchlist', icon: Eye },
   { href: '/settings', labelKey: 'nav.settings', icon: Settings },

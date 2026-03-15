@@ -20,6 +20,7 @@ const DEFAULT_WIDGETS: DashboardWidget[] = [
   { id: 'pnlSymbol', label: 'P&L by Symbol', enabled: true },
   { id: 'heatmap', label: 'P&L Heatmap', enabled: true },
   { id: 'recentTrades', label: 'Recent Trades', enabled: true },
+  { id: 'dailyWisdom', label: 'Daily Wisdom', enabled: true },
   { id: 'watchlist', label: 'Watchlist', enabled: false },
 ];
 

@@ -13,6 +13,7 @@ const translations = {
   'nav.privacy': { en: 'Privacy', hi: 'गोपनीयता' },
   'nav.disclaimer': { en: 'Disclaimer', hi: 'अस्वीकरण' },
   'nav.morningChecklist': { en: 'Morning Checklist', hi: 'सुबह की चेकलिस्ट' },
+  'nav.learn': { en: 'Learn', hi: 'सीखें' },
 
   // Header
   'header.marketOpen': { en: 'Market Open', hi: 'बाज़ार खुला' },
