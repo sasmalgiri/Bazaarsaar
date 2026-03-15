@@ -14,6 +14,8 @@ const translations = {
   'nav.disclaimer': { en: 'Disclaimer', hi: 'अस्वीकरण' },
   'nav.morningChecklist': { en: 'Morning Checklist', hi: 'सुबह की चेकलिस्ट' },
   'nav.learn': { en: 'Learn', hi: 'सीखें' },
+  'nav.community': { en: 'Community', hi: 'समुदाय' },
+  'nav.blog': { en: 'Blog', hi: 'ब्लॉग' },
 
   // Header
   'header.marketOpen': { en: 'Market Open', hi: 'बाज़ार खुला' },

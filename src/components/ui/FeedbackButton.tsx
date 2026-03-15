@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { GlassCard } from './GlassCard';
 import { createClient } from '@/lib/supabase/client';
-import { MessageCircle, X, Send, Check } from 'lucide-react';
+import { MessageCircle, X, Send, Check, Users } from 'lucide-react';
+import Link from 'next/link';
 
 export function FeedbackButton() {
   const [open, setOpen] = useState(false);
@@ -102,6 +103,14 @@ export function FeedbackButton() {
         >
           {sent ? <><Check size={14} /> Thank you!</> : sending ? 'Sending...' : <><Send size={14} /> Send Feedback</>}
         </button>
+
+        <Link
+          href="/community"
+          className="flex items-center justify-center gap-1.5 mt-2 text-[11px] text-[#6b6b8a] hover:text-[#d4d4e8] no-underline transition-colors"
+        >
+          <Users size={11} />
+          Join our community &rarr;
+        </Link>
       </GlassCard>
     </div>
   );

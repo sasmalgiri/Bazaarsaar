@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { createClient } from '@/lib/supabase/client';
 import { SEBIDisclaimer } from '@/components/ui/SEBIDisclaimer';
-import { TrendingUp, TrendingDown, BarChart3, BookOpen, BookCheck, AlertTriangle } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3, BookOpen, BookCheck, AlertTriangle, Share2 } from 'lucide-react';
 import type { WeeklyReport } from '@/types';
 
 export function WeeklyReviewUI() {
@@ -94,12 +94,26 @@ export function WeeklyReviewUI() {
       {/* Weekly Grade */}
       <GlassCard className="p-5 flex items-center gap-4">
         <div className={`text-4xl font-bold font-mono ${grade.color}`}>{grade.grade}</div>
-        <div>
+        <div className="flex-1">
           <p className="text-sm font-semibold text-[#d4d4e8]">Week Score (हफ़्ते का स्कोर)</p>
           <p className="text-xs text-[#6b6b8a]">{grade.msg}</p>
           <p className="text-[10px] text-amber-500/60" lang="hi">{grade.msgHi}</p>
           <p className="text-[10px] text-[#4a4a6a] mt-1">Based on win rate, journal fill rate, and checklist adherence — not P&amp;L.</p>
         </div>
+        <button
+          type="button"
+          onClick={() => {
+            const weekLabel = `${new Date(report.week_start).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })} - ${new Date(report.week_end).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`;
+            const text = `📊 My BazaarSaar Weekly Report Card\n\n🗓 Week: ${weekLabel}\n📈 Grade: ${grade.grade}\n🎯 Win Rate: ${winRate}%\n💰 Net P&L: ₹${Number(report.net_pnl).toLocaleString('en-IN')}\n📝 Journal Fill: ${Number(report.journal_fill_rate).toFixed(0)}%\n\nTrack your trades free at bazzarsaar.com`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+          }}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-medium text-green-500 border border-green-500/20 bg-transparent cursor-pointer hover:bg-green-500/10 transition-colors shrink-0"
+          title="Share on WhatsApp"
+        >
+          <Share2 size={13} />
+          Share
+        </button>
       </GlassCard>
 
       {/* Week selector */}

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Eye, ArrowLeftRight, CalendarCheck, Settings, Scale, Shield, BookOpen, BookCheck, FlaskConical, Brain, Sun } from 'lucide-react';
+import { LayoutDashboard, Eye, ArrowLeftRight, CalendarCheck, Settings, Scale, Shield, BookOpen, BookCheck, FlaskConical, Brain, Sun, Users, Newspaper } from 'lucide-react';
 import { usePersonaStore } from '@/lib/store/personaStore';
 import { PERSONA_CONFIGS } from '@/lib/persona/definitions';
 import { useTranslation } from '@/lib/i18n/useTranslation';
@@ -18,6 +18,8 @@ const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: typeof LayoutDa
   { href: '/learn', labelKey: 'nav.learn', icon: Brain, hint: 'Learn stock market basics step by step' },
   { href: '/datalab', labelKey: 'nav.datalab', icon: FlaskConical, hint: 'Upload trade files and see charts' },
   { href: '/dashboard/watchlist', labelKey: 'nav.watchlist', icon: Eye, hint: 'Stocks you\'re keeping an eye on' },
+  { href: '/community', labelKey: 'nav.community', icon: Users, hint: 'WhatsApp group, feedback, connect with traders' },
+  { href: '/blog', labelKey: 'nav.blog', icon: Newspaper, hint: 'Articles, guides, and trading tips' },
   { href: '/settings', labelKey: 'nav.settings', icon: Settings, hint: 'Connect broker, change preferences' },
 ];
 
